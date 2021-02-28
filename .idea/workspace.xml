@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ChangeListManager">
+    <list default="true" id="05dca2b2-7b20-4e99-93f4-02f8f87e1230" name="Default Changelist" comment="">
+      <change afterPath="$PROJECT_DIR$/cz4013_server/.idea/.gitignore" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/cz4013_server/.idea/encodings.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/cz4013_server/.idea/vcs.xml" afterDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="GitToolBoxStore">
+    <option name="projectConfigVersion" value="2" />
+  </component>
+  <component name="ProjectId" id="1p6zhtjGnfTyRgCFdwUXVS8QdxT" />
+  <component name="ProjectLevelVcsManager">
+    <ConfirmationsSetting value="2" id="Add" />
+  </component>
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent">
+    <property name="RunOnceActivity.OpenProjectViewOnStart" value="true" />
+    <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
+    <property name="WebServerToolWindowFactoryState" value="false" />
+    <property name="android.sdk.path" value="$USER_HOME$/AppData/Local/Android/Sdk" />
+    <property name="aspect.path.notification.shown" value="true" />
+    <property name="dart.analysis.tool.window.visible" value="false" />
+    <property name="jdk.selected.JAVA_MODULE" value="11" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$" />
+    <property name="nodejs_interpreter_path.stuck_in_default_project" value="undefined stuck path" />
+    <property name="nodejs_npm_path_reset_for_default_project" value="true" />
+    <property name="show.migrate.to.gradle.popup" value="false" />
+  </component>
+  <component name="RunManager">
+    <configuration name="Unnamed" type="Application" factoryName="Application" nameIsGenerated="true">
+      <module name="CZ4013-Distributed-System-Project" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+  </component>
+  <component name="SvnConfiguration">
+    <configuration />
+  </component>
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="05dca2b2-7b20-4e99-93f4-02f8f87e1230" name="Default Changelist" comment="" />
+      <created>1614518449103</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1614518449103</updated>
+      <workItem from="1614518451338" duration="849000" />
+    </task>
+    <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="2" />
+  </component>
+  <component name="WindowStateProjectService">
+    <state x="793" y="434" key="#com.intellij.execution.impl.EditConfigurationsDialog" timestamp="1614519266080">
+      <screen x="0" y="0" width="2560" height="1400" />
+    </state>
+    <state x="793" y="434" key="#com.intellij.execution.impl.EditConfigurationsDialog/0.0.2560.1400/2560.0.2560.1400@0.0.2560.1400" timestamp="1614519266080" />
+    <state x="1068" y="568" key="#com.intellij.ide.util.TreeClassChooserDialog" timestamp="1614519258626">
+      <screen x="0" y="0" width="2560" height="1400" />
+    </state>
+    <state x="1068" y="568" key="#com.intellij.ide.util.TreeClassChooserDialog/0.0.2560.1400/2560.0.2560.1400@0.0.2560.1400" timestamp="1614519258626" />
+    <state x="1370" y="519" key="FileChooserDialogImpl" timestamp="1614519202928">
+      <screen x="0" y="0" width="2560" height="1400" />
+    </state>
+    <state x="1370" y="519" key="FileChooserDialogImpl/0.0.2560.1400/2560.0.2560.1400@0.0.2560.1400" timestamp="1614519202928" />
+    <state x="968" y="353" width="1245" height="853" key="new project wizard" timestamp="1614519210031">
+      <screen x="0" y="0" width="2560" height="1400" />
+    </state>
+    <state x="968" y="353" width="1245" height="853" key="new project wizard/0.0.2560.1400/2560.0.2560.1400@0.0.2560.1400" timestamp="1614519210031" />
+  </component>
+</project>
