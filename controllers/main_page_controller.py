@@ -1,7 +1,8 @@
 import sys
 
-from controllers.base_controller import BaseController
-from utils import get_menu_options, print_message
+from controllers import BaseController, FacilityAvailCheckingController
+from utils import get_menu_option, print_message
+from helpers import request
 
 
 class MainPageController(BaseController):
@@ -22,11 +23,11 @@ class MainPageController(BaseController):
     def enter(self, *args, **kwargs):
         self.show_message()
         self.show_options()
-        self.handler(get_menu_options(max_choice=len(self.options)))
+        self.handler(get_menu_option(max_choice=len(self.options)))
 
     def handler(self, user_choice):
         if user_choice == 0:
-            pass
+            FacilityAvailCheckingController(facility_name_list=self.retrieve_facility_name_list()).start()
         elif user_choice == 1:
             pass
         elif user_choice == 2:
@@ -37,6 +38,12 @@ class MainPageController(BaseController):
             self.exit()
 
     @staticmethod
+    def retrieve_facility_name_list():
+        return ['SRC Swimming Pool', 'North Hill Gym', 'SRC Tennis Court']
+        # TODO
+        # return request({})
+
+    @staticmethod
     def exit():
-        print_message("Thank You For Using Facility Booking System.")
+        print_message("Thank You for Using Facility Booking System.")
         sys.exit()

@@ -11,8 +11,8 @@ class UDPClientSocket:
     serverAddressPort = (SERVER_IP, SERVER_PORT)
 
     @classmethod
-    def send_msg(cls, msg: bytes, wait_for_response=True, time_out=5,
-                 max_attempt: int = float('inf'), buffer_size=1024) -> Union[bytes, None]:
+    def send_msg(cls, msg: bytes, wait_for_response: int = True, time_out: int = 5,
+                 max_attempt: int = float('inf'), buffer_size: int = 1024) -> Union[bytes, None]:
         if wait_for_response:
             attempt = 0
             while attempt <= max_attempt:

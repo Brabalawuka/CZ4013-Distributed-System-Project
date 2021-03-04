@@ -13,9 +13,13 @@ class Colors:
     UNDERLINE = '\033[4m'
 
 
-def print_options(opts: List[str]) -> None:
+class SpecialCharacters:
+    DOT = '\u2022'
+
+
+def print_options(opts: List[str], ordered=True) -> None:
     for i, opt in enumerate(opts, 1):
-        print(f"{Colors.OKCYAN}{i}{Colors.ENDC} - {opt}")
+        print(f"{Colors.OKCYAN}{f'{i} -' if ordered else SpecialCharacters.DOT}{Colors.ENDC} {opt}")
 
 
 def print_message(msg: str) -> None:

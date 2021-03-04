@@ -22,6 +22,9 @@ class BaseController(ABC):
     def show_options(self):
         print_options(self.options)
 
+    def show_unordered_options(self):
+        print_options(self.options, ordered=False)
+
     def start(self, *args, **kwargs):
         while True:
             self.enter(*args, **kwargs)
@@ -30,8 +33,5 @@ class BaseController(ABC):
     def enter(self, *args, **kwargs):
         raise NotImplementedError
 
-    @abstractmethod
-    def handler(self, user_choice: int):
-        raise NotImplementedError
 
 
