@@ -26,5 +26,9 @@ def print_warning(msg: str) -> None:
     print(f"{Colors.WARNING}{msg}{Colors.ENDC}")
 
 
+def print_error(msg: str) -> None:
+    print(f"{Colors.FAIL}{msg}{Colors.ENDC}")
+
+
 def prompt_message_decorator(msg: str) -> str:
     return f"{Colors.OKBLUE}>{Colors.ENDC} {msg}: "

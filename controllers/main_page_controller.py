@@ -5,7 +5,6 @@ from utils import get_menu_options, print_message
 
 
 class MainPageController(BaseController):
-
     @property
     def message(self):
         return 'Welcome to Facility Booking System!'
