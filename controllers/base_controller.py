@@ -27,7 +27,9 @@ class BaseController(ABC):
 
     def start(self, *args, **kwargs):
         while True:
-            self.enter(*args, **kwargs)
+            i = self.enter(*args, **kwargs)
+            if i == 0:
+                return
 
     @abstractmethod
     def enter(self, *args, **kwargs):

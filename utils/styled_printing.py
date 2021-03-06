@@ -40,6 +40,10 @@ def prompt_message_decorator(msg: str) -> str:
     return f"{Colors.OKBLUE}>{Colors.ENDC} {msg}: "
 
 
+def inline_important_message_decorator(msg: str) -> str:
+    return f"{Colors.OKGREEN}{msg}{Colors.ENDC}"
+
+
 def print_timetable(facility_name: str, days: List[str], avail_by_days: List[str],
                     new_line_at_top: bool = True, new_line_at_end: bool = True) -> None:
     assert len(days) == len(avail_by_days)

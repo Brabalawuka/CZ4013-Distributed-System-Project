@@ -1,10 +1,15 @@
-from typing import List
+import re
+from typing import List, Union
 
 
 from utils import prompt_message_decorator, print_warning
 
 
-def get_menu_option(max_choice, msg='Please Indicate Your Choice', min_choice=1) -> int:
+def get_menu_option(max_choice, msg='Please Indicate Your Choice', min_choice=1,
+                    allow_free_choice=False) -> Union[int, str]:
+    if allow_free_choice:
+        return input(prompt_message_decorator(msg)).strip()
+
     while True:
         user_input = input(prompt_message_decorator(msg))
         try:
@@ -32,4 +37,14 @@ def get_string_options(list_of_vals: List[str], msg='Please Indicate Your Choice
             return user_choices
         except ValueError:
             print_warning("Invalid Input! Please Try Again.")
+
+
+def get_time(msg='Please Indicate A Time In 24hrs Format (e.g. 07:30)') -> str:
+    while True:
+        user_input = input(prompt_message_decorator(msg)).strip()
+        if re.match(r'([01]?[0-9]|2[0-3]):[0-5][0-9]', user_input):
+            return user_input
+        else:
+            print_warning("Invalid Input! Please Try Again.")
+
 
