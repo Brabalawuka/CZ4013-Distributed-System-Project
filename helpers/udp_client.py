@@ -1,5 +1,6 @@
 import socket
 from typing import Union
+import random
 
 from configs import *
 from utils import print_warning, print_error
@@ -21,14 +22,18 @@ class UDPClientSocket:
 
     @classmethod
     def send_msg(cls, msg: bytes, wait_for_response: int = True, time_out: int = 5,
-                 max_attempt: int = float('inf'), buffer_size: int = 1024) -> Union[bytes, None]:
+                 max_attempt: int = float('inf'), buffer_size: int = 1024,
+                 simulate_comm_omission_fail=True) -> Union[bytes, None]:
         if wait_for_response:
             attempt = 0
             while attempt <= max_attempt:
                 cls.UDPSocket.settimeout(time_out)
                 attempt += 1
                 try:
-                    cls.UDPSocket.sendto(msg, cls.serverAddressPort)
+                    if not simulate_comm_omission_fail or\
+                            simulate_comm_omission_fail and random.randint(0, 9) != 0:
+                        cls.UDPSocket.sendto(msg, cls.serverAddressPort)
+
                     while True:
                         data, addr = cls.UDPSocket.recvfrom(buffer_size)
                         if addr == cls.serverAddressPort:
