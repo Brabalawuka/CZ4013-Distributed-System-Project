@@ -1,3 +1,4 @@
+from time import time
 import socket
 from typing import Union
 import random
@@ -34,13 +35,26 @@ class UDPClientSocket:
                             simulate_comm_omission_fail and random.randint(0, 9) != 0:
                         cls.UDPSocket.sendto(msg, cls.serverAddressPort)
 
+                    updated_time_out = time_out
                     while True:
+                        start = time()
                         data, addr = cls.UDPSocket.recvfrom(buffer_size)
+                        end = time()
+
                         if addr == cls.serverAddressPort:
                             return data
+                        else:
+                            updated_time_out -= end - start
+                            if updated_time_out <= 0:
+                                raise socket.timeout
+                            cls.UDPSocket.settimeout(updated_time_out)
                 except socket.timeout:
                     print_warning(msg=f'No Message Received From Server In {time_out} Seconds. Resending...')
             print_error(msg=f'Maximum {max_attempt} Attempts Reached. '
                             f'Please Check Your Internet Connection And Try Again Later.')
         else:
             cls.UDPSocket.sendto(msg, cls.serverAddressPort)
+
+
+if __name__ == '__main__':
+    UDPClientSocket.send_msg(msg=b'test')
