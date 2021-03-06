@@ -17,9 +17,11 @@ class SpecialCharacters:
     DOT = '\u2022'
 
 
-def print_options(opts: List[str], ordered=True) -> None:
+def print_options(opts: List[str], ordered: bool = True, new_line_at_end: bool = False) -> None:
     for i, opt in enumerate(opts, 1):
         print(f"{Colors.OKCYAN}{f'{i} -' if ordered else SpecialCharacters.DOT}{Colors.ENDC} {opt}")
+    if new_line_at_end:
+        print()
 
 
 def print_message(msg: str) -> None:
@@ -36,3 +38,19 @@ def print_error(msg: str) -> None:
 
 def prompt_message_decorator(msg: str) -> str:
     return f"{Colors.OKBLUE}>{Colors.ENDC} {msg}: "
+
+
+def print_timetable(facility_name: str, days: List[str], avail_by_days: List[str],
+                    new_line_at_top: bool = True, new_line_at_end: bool = True) -> None:
+    assert len(days) == len(avail_by_days)
+    if new_line_at_top:
+        print()
+    print_message(f'Available Periods of {facility_name} on the Queried Days')
+    max_len_str = max(days, key=len)
+    content = []
+    for i, v in enumerate(days):
+        content.append(f'{v + " " * (len(max_len_str) - len(v))}: {" | ".join(avail_by_days[i].split(";"))}')
+    print_options(content, ordered=False)
+    if new_line_at_end:
+        print()
+

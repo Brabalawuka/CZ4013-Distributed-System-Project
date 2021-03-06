@@ -5,9 +5,18 @@ from configs import *
 from utils import print_warning, print_error
 
 
+def get_free_port():
+    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    s.bind(("", 0))
+    s.listen(1)
+    port = s.getsockname()[1]
+    s.close()
+    return port
+
+
 class UDPClientSocket:
     UDPSocket = socket.socket(family=socket.AF_INET, type=socket.SOCK_DGRAM)
-    UDPSocket.bind((CLIENT_IP, CLIENT_PORT))
+    UDPSocket.bind((CLIENT_IP, CLIENT_PORT if CLIENT_PORT is not None else get_free_port()))
     serverAddressPort = (SERVER_IP, SERVER_PORT)
 
     @classmethod

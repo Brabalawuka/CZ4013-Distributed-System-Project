@@ -23,7 +23,7 @@ def get_string_options(list_of_vals: List[str], msg='Please Indicate Your Choice
         try:
             user_input = input(prompt_message_decorator(msg if max_num_of_choice == 1 else f'{msg} '
                                                                                            f'(Separate by "{separator}")'))
-            user_choices = user_input.split(separator)
+            user_choices = [s.strip().title() for s in user_input.split(separator)]
             if max_num_of_choice is not None and not (min_num_of_choice <= len(user_choices) <= max_num_of_choice):
                 raise ValueError
             for c in user_choices:
