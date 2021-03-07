@@ -10,6 +10,6 @@ public abstract class BaseListener {
         publisher.attachListener(this);
     }
 
-    public abstract  <T extends BaseXYZZObject> void onMessage(BaseXYZZMessage<T> message);
+    public abstract <T extends BaseXYZZObject> void onMessage(BaseXYZZMessage<T> message);
 
 }

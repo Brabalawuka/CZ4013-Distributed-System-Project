@@ -1,5 +1,6 @@
 package com.company.cz4013.base.client;
 
+import com.company.cz4013.base.event.BasePublisher;
 import com.company.cz4013.exception.UdpClientException;
 
 import java.io.IOException;
@@ -17,8 +18,8 @@ public abstract class BaseUdpClient {
     }
 
 
-    public BaseUdpMsg receiveRequest(){
-        byte[] dataBuffer = new byte[2048];
+    protected BaseUdpMsg receiveRequest(){
+        byte[] dataBuffer = new byte[4096];
         DatagramPacket request = new DatagramPacket(dataBuffer, dataBuffer.length);
         try {
             socket.receive(request);
@@ -28,7 +29,7 @@ public abstract class BaseUdpClient {
         return new BaseUdpMsg(request.getAddress(), request.getPort(), request.getData());
     }
 
-    public void sendMessage(BaseUdpMsg message){
+    protected void sendMessage(BaseUdpMsg message){
 
         DatagramPacket replyPacket = new DatagramPacket(message.data, message.data.length, message.returnAddress, message.returnPort);
 

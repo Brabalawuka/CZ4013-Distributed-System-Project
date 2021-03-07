@@ -2,12 +2,42 @@ package com.company.cz4013.base.dto;
 
 public class BaseXYZZMessage<T extends BaseXYZZObject> {
 
-    String seqId;
-    XYZZMessageType type;
-    /*
-    Invocation At Least Once : 0
-    Invocation At Most Once : 1
-     */
-    int qos;
-    T data;
+    private String uuId;
+    private XYZZMessageType type;
+
+    public void setMethodName(String methodName) {
+        this.methodName = methodName;
+    }
+
+    public String getMethodName() {
+        return methodName;
+    }
+
+    private String methodName;
+
+    private T data;
+
+    public String getUuId() {
+        return uuId;
+    }
+
+    public void setUuId(String uuId) {
+        this.uuId = uuId;
+    }
+
+    public XYZZMessageType getType() {
+        return type;
+    }
+
+    public void setType(XYZZMessageType type) {
+        this.type = type;
+    }
+
+    public T getData() {
+        return data;
+    }
+
+    public void setData(T data) {
+        this.data = data;
+    }
 }
