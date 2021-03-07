@@ -12,6 +12,9 @@ class MessageType(Enum):
 
 class ServiceType(Enum):
     FACILITY_AVAIL_CHECKING = 'FACILITY_AVAIL_CHECKING'
+    FACILITY_BOOKING = 'FACILITY_BOOKING'
+    FACILITY_BOOKING_AMENDMENT = 'FACILITY_BOOKING_AMENDMENT'
+    FACILITY_AVAIL_CHECKING_SUBSCRIPTION = 'FACILITY_AVAIL_CHECKING_SUBSCRIPTION'
 
 
 type_to_hex = dict({
@@ -38,6 +41,7 @@ def _serialize_data(a) -> bytes:
     type_a = type(a)
     serialized_form = type_to_hex[type_a]
 
+    # FIXME big-endian problem - need to be consistent with server
     if type_a is int:
         serialized_form += struct.pack('i', a)
     if type_a is float:
