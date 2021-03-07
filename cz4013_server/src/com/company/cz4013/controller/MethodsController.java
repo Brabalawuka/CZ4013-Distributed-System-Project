@@ -13,7 +13,7 @@ import java.util.HashMap;
 public class MethodsController extends BasePublisher {
 
     public static HashMap<String, String> methodHashMap = new HashMap<>(){{
-        put("FACILITY_AVAIL_CHECKING", "checkFacilityAvailibity");
+        put("FACILITY_AVAIL_CHECKING", "checkFacilityAvailability");
 
     }};
 
