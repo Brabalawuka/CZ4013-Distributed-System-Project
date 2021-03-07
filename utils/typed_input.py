@@ -5,11 +5,7 @@ from typing import List, Union
 from utils import prompt_message_decorator, print_warning
 
 
-def get_menu_option(max_choice, msg='Please Indicate Your Choice', min_choice=1,
-                    allow_free_choice=False) -> Union[int, str]:
-    if allow_free_choice:
-        return input(prompt_message_decorator(msg)).strip()
-
+def get_menu_option(max_choice, msg='Please Indicate Your Choice', min_choice=1) -> Union[int, str]:
     while True:
         user_input = input(prompt_message_decorator(msg))
         try:
@@ -48,3 +44,13 @@ def get_time(msg='Please Indicate A Time In 24hrs Format (e.g. 07:30)') -> str:
             print_warning("Invalid Input! Please Try Again.")
 
 
+def get_string_input(msg=None, allow_none=False) -> str:
+    while True:
+        try:
+            user_input = input(prompt_message_decorator(msg)).strip()
+            if allow_none or len(user_input) != 0:
+                return user_input
+            else:
+                raise ValueError
+        except ValueError:
+            print_warning("Invalid Input! Please Try Again.")

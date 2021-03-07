@@ -14,7 +14,7 @@ class FacilityAvailCheckingController(BaseController):
 
     @property
     def message(self):
-        return 'All Facilities Are Listed Below:'
+        return 'All Facilities Are Listed Below For Your Reference:'
 
     @property
     def options(self):
@@ -26,15 +26,8 @@ class FacilityAvailCheckingController(BaseController):
 
     def enter(self, *args, **kwargs) -> int:
         self.show_message()
-        self.show_options()
-        facility_opt = get_menu_option(max_choice=len(self.options),
-                                       msg="Please Indicate the Target Facility by Number (e.g. 1)"
-                                           " or Typing Full Name",
-                                       allow_free_choice=True) # this is in the requirement
-        if type(facility_opt) is str:
-            facility_name = facility_opt
-        else:
-            facility_name = self.options[facility_opt]
+        print_options(self.options, ordered=False)
+        facility_name = get_string_input(f"Please Indicate the Target Facility by Typing Full Name")
 
         current_day = datetime.today().weekday()
         day_list = self.day_list[current_day:] + [f'Coming {d}' for d in self.day_list[:current_day]]

@@ -14,7 +14,7 @@ class FacilityBookingController(BaseController):
 
     @property
     def message(self):
-        return 'All Facilities Are Listed Below:'
+        return 'All Available Facilities Are Listed Below:'
 
     @property
     def options(self):
