@@ -45,7 +45,7 @@ def _serialize_data(a) -> bytes:
     # FIXME big-endian problem - need to be consistent with server
     if type_a is int:
         serialized_form += struct.pack('>i', a)
-    if type_a is float:
+    elif type_a is float:
         serialized_form += struct.pack('>f', a)
     elif type_a is bool:
         serialized_form += struct.pack('>b', a)
