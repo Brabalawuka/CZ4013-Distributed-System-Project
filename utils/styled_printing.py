@@ -41,6 +41,7 @@ def prompt_message_decorator(msg: str) -> str:
 
 
 def inline_important_message_decorator(msg: str) -> str:
+    # TODO: This only works when the original msg is white or it is at the end of the line
     return f"{Colors.OKGREEN}{msg}{Colors.ENDC}"
 
 
@@ -58,3 +59,16 @@ def print_timetable(facility_name: str, days: List[str], avail_by_days: List[str
     if new_line_at_end:
         print()
 
+
+def print_booking(booking_id: str, facility_name: str, start_day: str, start_time: str, end_day: str, end_time: str,
+                  new_line_at_top: bool = True, new_line_at_end: bool = True) -> None:
+    if new_line_at_top:
+        print()
+    print_message(f'Booking Information For {inline_important_message_decorator(booking_id.upper())}')
+    print_options([
+        f'Facility Name: {facility_name}',
+        f'Start Time: {start_day} {start_time}',
+        f'End Time: {end_day} {end_time}'
+    ], ordered=False)
+    if new_line_at_end:
+        print()

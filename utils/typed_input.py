@@ -54,3 +54,16 @@ def get_string_input(msg=None, allow_none=False) -> str:
                 raise ValueError
         except ValueError:
             print_warning("Invalid Input! Please Try Again.")
+
+
+def get_confirmation_id(msg="Please Input Your Confirmation ID With Dashes (Case Insensitive)", to_lower_case=True) -> str:
+    while True:
+        try:
+            user_input = input(prompt_message_decorator(msg)).strip().lower()
+            if re.match(r"^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$", user_input):
+                return user_input
+            else:
+                raise ValueError
+        except ValueError:
+            print_warning("Invalid Input! Please Try Again. Confirmation ID Should Be "
+                          "36 Characters With Dashes Included.")

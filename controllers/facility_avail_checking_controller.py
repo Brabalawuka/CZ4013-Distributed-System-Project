@@ -10,7 +10,7 @@ class FacilityAvailCheckingController(BaseController):
         super().__init__()
         self._options = facility_name_list
         self.day_list = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
-        self.ctrl_list = ['Back', 'Make Another Query']
+        self.ctrl_list = ['Back To Homepage', 'Make Another Query']
 
     @property
     def message(self):

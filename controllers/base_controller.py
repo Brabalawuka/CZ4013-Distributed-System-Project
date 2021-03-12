@@ -7,12 +7,10 @@ class BaseController(ABC):
         pass
 
     @property
-    @abstractmethod
     def message(self):
         raise NotImplementedError
 
     @property
-    @abstractmethod
     def options(self):
         raise NotImplementedError
 
