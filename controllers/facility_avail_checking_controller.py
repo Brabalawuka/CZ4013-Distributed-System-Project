@@ -1,15 +1,15 @@
 from datetime import datetime
-from typing import List
 
 from controllers import BaseController
 from utils import *
 
 
 class FacilityAvailCheckingController(BaseController):
+    day_list = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
+
     def __init__(self, facility_name_list):
         super().__init__()
         self._options = facility_name_list
-        self.day_list = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
         self.ctrl_list = ['Back To Homepage', 'Make Another Query']
 
     @property

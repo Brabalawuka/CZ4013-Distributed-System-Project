@@ -1,4 +1,5 @@
 from enum import Enum
+from typing import Tuple
 import struct
 from uuid import uuid4 as uuid
 
@@ -27,48 +28,80 @@ type_to_hex = dict({
 })
 
 
-def marshall(type: MessageType, service: ServiceType, *args) -> bytearray:
-    msg_in_bytes = bytearray(type.value)
-    request_id = str(uuid())
-    msg_in_bytes += bytes(request_id.encode('ascii'))
-    msg_in_bytes += struct.pack('B', len(service.value))
-    msg_in_bytes += bytes(service.value.encode('ascii'))
-    for a in args:
-        msg_in_bytes += _serialize_data(a)
-    return msg_in_bytes
+class BaseMessage:
+    def __init__(self, request_id: str):
+        self.request_id = request_id
 
 
-def _serialize_data(a) -> bytes:
-    type_a = type(a)
-    serialized_form = type_to_hex[type_a]
+class CallMessage(BaseMessage):
+    def __init__(self, service: ServiceType, data: Tuple):
+        super().__init__(str(uuid()))
+        self.msg_type = MessageType.CALL
+        self.service = service
+        self.data = data
 
-    # FIXME big-endian problem - need to be consistent with server
-    if type_a is int:
-        serialized_form += struct.pack('>i', a)
-    elif type_a is float:
-        serialized_form += struct.pack('>f', a)
-    elif type_a is bool:
-        serialized_form += struct.pack('>b', a)
-    elif type_a is str:
-        serialized_form += struct.pack('>i', len(a)) + bytes(a.encode('ascii'))
-    elif type_a is list:
-        # FIXME not empty array allowed
-        inner_type = type(a[0])
-        serialized_inner_data = bytearray()
-        for inner_a in a:
-            serialized_inner_data += _serialize_data(inner_a)[1:]  # type is not needed
-        serialized_form + type_to_hex[inner_type] + struct.pack('>i', len(a)) + serialized_inner_data
+    def marshall(self) -> bytearray:
+        msg_in_bytes = bytearray(self.msg_type.value)
+        msg_in_bytes += bytes(self.request_id.encode('ascii'))
+        msg_in_bytes += struct.pack('B', len(self.service.value))
+        msg_in_bytes += bytes(self.service.value.encode('ascii'))
+        for a in self.data:
+            msg_in_bytes += self._serialize_data(a)
+        return msg_in_bytes
 
-    return serialized_form
+    @classmethod
+    def _serialize_data(cls, a) -> bytes:
+        type_a = type(a)
+        serialized_form = type_to_hex[type_a]
+
+        # FIXME little-endian problem - need to be consistent with server
+        if type_a is int:
+            serialized_form += struct.pack('>i', a)
+        elif type_a is float:
+            serialized_form += struct.pack('>f', a)
+        elif type_a is bool:
+            serialized_form += struct.pack('>b', a)
+        elif type_a is str:
+            serialized_form += struct.pack('>i', len(a)) + bytes(a.encode('ascii'))
+        elif type_a is list:
+            # FIXME not empty array allowed
+            inner_type = type(a[0])
+            serialized_inner_data = bytearray()
+            for inner_a in a:
+                serialized_inner_data += cls._serialize_data(inner_a)[1:]  # type is not needed
+            serialized_form += type_to_hex[inner_type] + struct.pack('>i', len(a)) + serialized_inner_data
+
+        return serialized_form
 
 
-def unmarshall(data: bytes) -> dict:
+class ReplyMessage(BaseMessage):
+    def __init__(self, request_id: str, data: list):
+        super().__init__(request_id)
+        self.msg_type = MessageType.REPLY
+        self.data = data
+
+
+class ExceptionMessage(BaseMessage):
+    def __init__(self, request_id: str, error_msg: str):
+        super().__init__(request_id)
+        self.msg_type = MessageType.EXCEPTION
+        self.error_msg = error_msg
+
+
+class OneWayMessage(ReplyMessage):
+    def __init__(self, request_id: str, data: list):
+        super().__init__(request_id, data)
+        self.msg_type = MessageType.ONEWAY
+
+
+def unmarshall(data: bytes) -> BaseMessage:
     # TODO
-    pass
+    return ReplyMessage('1', [])
 
 
 if __name__ == '__main__':
-    msg = marshall(MessageType.CALL, ServiceType.FACILITY_AVAIL_CHECKING, 'North Hill Gym', ['Sun', 'Coming Mon'])
+    msg = CallMessage(service=ServiceType.FACILITY_AVAIL_CHECKING, data=('North Hill Gym', ['Sun', 'Coming Mon']))
+    bytes_msg = msg.marshall()
     from helpers import UDPClientSocket
 
-    UDPClientSocket.send_msg(msg=msg)
+    UDPClientSocket.send_msg(msg=bytes_msg)

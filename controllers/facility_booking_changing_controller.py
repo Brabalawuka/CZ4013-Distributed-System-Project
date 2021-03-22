@@ -37,7 +37,7 @@ class FacilityBookingChangingController(BaseController):
             if ctrl_opt == 1:
                 self.show_options()
                 forward = bool(get_menu_option(max_choice=len(self._options)))
-                # TODO: get shift time; confirm format
+                # TODO: get shift time; confirm format; should be reusable for subscription as well
                 shift_time = None
                 return self.change_handler(booking_id, forward, shift_time)
             else:

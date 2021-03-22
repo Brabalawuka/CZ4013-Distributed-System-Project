@@ -1,6 +1,6 @@
 from time import time
 import socket
-from typing import Union
+from typing import Union, Callable
 import random
 
 from configs import *
@@ -54,6 +54,23 @@ class UDPClientSocket:
                             f'Please Check Your Internet Connection And Try Again Later.')
         else:
             cls.UDPSocket.sendto(msg, cls.serverAddressPort)
+
+    @classmethod
+    def listen_msg(cls, subscribe_time: int, call_back_function: Callable, buffer_size: int = 1024) -> None:
+        end_time = time() + subscribe_time
+        cls.UDPSocket.settimeout(subscribe_time)
+
+        try:
+            while True:
+                data, addr = cls.UDPSocket.recvfrom(buffer_size)
+                end = time()
+
+                if addr == cls.serverAddressPort:
+                    call_back_function(data)
+                else:
+                    cls.UDPSocket.settimeout(end_time - end)
+        except (socket.timeout, ValueError):
+            return
 
 
 if __name__ == '__main__':
