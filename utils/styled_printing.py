@@ -45,12 +45,14 @@ def inline_important_message_decorator(msg: str) -> str:
     return f"{Colors.OKGREEN}{msg}{Colors.ENDC}"
 
 
-def print_timetable(facility_name: str, days: List[str], avail_by_days: List[str],
-                    new_line_at_top: bool = True, new_line_at_end: bool = True) -> None:
+def print_timetable(days: List[str], avail_by_days: List[str],
+                    new_line_at_top: bool = True, new_line_at_end: bool = True,
+                    facility_name: str = None) -> None:
     assert len(days) == len(avail_by_days)
     if new_line_at_top:
         print()
-    print_message(f'Available Periods of {facility_name} on the Queried Days')
+    if facility_name is not None:
+        print_message(f'Available Periods of {facility_name} on the Queried Days')
     max_len_str = max(days, key=len)
     content = []
     for i, v in enumerate(days):

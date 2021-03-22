@@ -1,7 +1,7 @@
 import sys
 
 from controllers import BaseController, FacilityAvailCheckingController, \
-    FacilityBookingController, FacilityBookingChangingController
+    FacilityBookingController, FacilityBookingChangingController, FacilityAvailSubscribingController
 from utils import get_menu_option, print_message
 from helpers import request
 
@@ -34,7 +34,7 @@ class MainPageController(BaseController):
         elif user_choice == 2:
             FacilityBookingChangingController().start()
         elif user_choice == 3:
-            pass
+            FacilityAvailSubscribingController(facility_name_list=self.retrieve_facility_name_list()).start()
         else:
             self.exit()
 

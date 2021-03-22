@@ -104,4 +104,4 @@ if __name__ == '__main__':
     bytes_msg = msg.marshall()
     from helpers import UDPClientSocket
 
-    UDPClientSocket.send_msg(msg=bytes_msg)
+    UDPClientSocket.send_msg(msg=bytes_msg, request_id=msg.request_id)

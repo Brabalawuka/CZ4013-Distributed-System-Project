@@ -4,7 +4,7 @@ from typing import Union, Callable
 import random
 
 from configs import *
-from utils import print_warning, print_error
+from utils import print_warning, print_error, unmarshall, BaseMessage
 
 
 def get_free_port():
@@ -22,9 +22,9 @@ class UDPClientSocket:
     serverAddressPort = (SERVER_IP, SERVER_PORT)
 
     @classmethod
-    def send_msg(cls, msg: bytes, wait_for_response: int = True, time_out: int = 5,
+    def send_msg(cls, msg: bytes, request_id: str, wait_for_response: int = True, time_out: int = 5,
                  max_attempt: int = float('inf'), buffer_size: int = 1024,
-                 simulate_comm_omission_fail=True) -> Union[bytes, None]:
+                 simulate_comm_omission_fail=True) -> Union[BaseMessage, None]:
         if wait_for_response:
             attempt = 0
             while attempt <= max_attempt:
@@ -42,21 +42,28 @@ class UDPClientSocket:
                         end = time()
 
                         if addr == cls.serverAddressPort:
-                            return data
+                            reply_message = unmarshall(data)
+                            if reply_message.request_id == request_id:
+                                return reply_message
+                            else:
+                                print_warning('Unmatched Reply Message Detected! Discarding...')
                         else:
-                            updated_time_out -= end - start
-                            if updated_time_out <= 0:
-                                raise socket.timeout
-                            cls.UDPSocket.settimeout(updated_time_out)
+                            print_warning(f'Unexpected External Message From {addr} Detected! Discarding...')
+
+                        updated_time_out -= end - start
+                        if updated_time_out <= 0:
+                            raise socket.timeout
+                        cls.UDPSocket.settimeout(updated_time_out)
                 except socket.timeout:
                     print_warning(msg=f'No Message Received From Server In {time_out} Seconds. Resending...')
+
             print_error(msg=f'Maximum {max_attempt} Attempts Reached. '
                             f'Please Check Your Internet Connection And Try Again Later.')
         else:
             cls.UDPSocket.sendto(msg, cls.serverAddressPort)
 
     @classmethod
-    def listen_msg(cls, subscribe_time: int, call_back_function: Callable, buffer_size: int = 1024) -> None:
+    def listen_msg(cls, subscribe_time: int, request_id: int, call_back_function: Callable, buffer_size: int = 1024) -> None:
         end_time = time() + subscribe_time
         cls.UDPSocket.settimeout(subscribe_time)
 
@@ -66,12 +73,18 @@ class UDPClientSocket:
                 end = time()
 
                 if addr == cls.serverAddressPort:
-                    call_back_function(data)
+                    reply_message = unmarshall(data)
+                    if reply_message.request_id == request_id:
+                        call_back_function(reply_message)
+                    else:
+                        print_warning('Unmatched Reply Message Detected! Discarding...')
                 else:
-                    cls.UDPSocket.settimeout(end_time - end)
+                    print_warning(f'Unexpected External Message From {addr} Detected! Discarding...')
+
+                cls.UDPSocket.settimeout(end_time - end)
         except (socket.timeout, ValueError):
             return
 
 
 if __name__ == '__main__':
-    UDPClientSocket.send_msg(msg=b'test')
+    UDPClientSocket.send_msg(msg=b'test', request_id='123')

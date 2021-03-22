@@ -27,7 +27,8 @@ class FacilityAvailCheckingController(BaseController):
     def enter(self, *args, **kwargs) -> int:
         self.show_message()
         print_options(self.options, ordered=False)
-        facility_name = get_string_input(f"Please Indicate the Target Facility by Typing Full Name")
+        facility_name = get_string_input(f'Please Indicate the Target Facility by Typing '
+                                         f'{inline_important_message_decorator("Full Name")}')
 
         current_day = datetime.today().weekday()
         day_list = self.day_list[current_day:] + [f'Coming {d}' for d in self.day_list[:current_day]]

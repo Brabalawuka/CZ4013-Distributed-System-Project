@@ -1,15 +1,18 @@
 from typing import Callable
 
-from utils import unmarshall
 from helpers import UDPClientSocket
-from utils import ServiceType, MessageType, print_error, CallMessage, BaseMessage
+from utils import ServiceType, CallMessage, BaseMessage
 
 
-def request(type: MessageType, service: ServiceType, *args, **kwargs) -> BaseMessage:
+def notify():
+    # TODO: notify server without waiting for response
+    pass
+
+
+def request(service: ServiceType, *args, **kwargs) -> BaseMessage:
     msg = CallMessage(service=service, data=args)
     marshalled_msg = msg.marshall()
-    raw_data_in_bytes = UDPClientSocket.send_msg(msg=marshalled_msg, **kwargs)
-    reply_msg = unmarshall(raw_data_in_bytes)
+    reply_msg = UDPClientSocket.send_msg(msg=marshalled_msg, request_id=msg.request_id, **kwargs)
     return reply_msg
 
 
