@@ -16,8 +16,7 @@ class FacilityAvailSubscribingController(FacilityAvailCheckingController):
         facility_name = get_string_input(f'Please Indicate the Target Facility by Typing '
                                          f'{inline_important_message_decorator("Full Name")}')
 
-        # TODO, get sub time
-        sub_time_in_seconds = 10
+        sub_time_in_seconds = get_time_period(msg_suffix="Subscribe", precision='second')
 
         self.handler(facility_name, sub_time_in_seconds)
         print_options(self.ctrl_list)

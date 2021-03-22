@@ -1,3 +1,5 @@
+from typing import Union
+
 from controllers import BaseController
 from utils import *
 
@@ -37,8 +39,7 @@ class FacilityBookingChangingController(BaseController):
             if ctrl_opt == 1:
                 self.show_options()
                 forward = bool(get_menu_option(max_choice=len(self._options)))
-                # TODO: get shift time; confirm format; should be reusable for subscription as well
-                shift_time = None
+                shift_time = get_time_period(msg_suffix="Shift", precision='minute')
                 return self.change_handler(booking_id, forward, shift_time)
             else:
                 return ctrl_opt
@@ -61,7 +62,7 @@ class FacilityBookingChangingController(BaseController):
 
     @staticmethod
     def _validate_time(shift_time) -> bool:
-        # TODO: check if it is a past time or exceeding this week
+        # TODO: check if it is a past time or exceeding this week, could be left to the server side as error handling
         pass
 
     def query_booking(self, booking_id: str) -> dict:
@@ -79,4 +80,6 @@ class FacilityBookingChangingController(BaseController):
     def change_booking(self, booking_id: str, forward: bool, shift_time) -> None:
         # TODO
         if booking_id == '5e0629b5-3a16-4cc5-bd0a-2c09455d3aa8':
+            raise Exception(self.error_msg[b'\x00'])
+        elif booking_id == '5e0629b5-3a16-4cc5-bd0a-2c09455d3aa9':
             raise Exception(self.error_msg[b'\x01'])

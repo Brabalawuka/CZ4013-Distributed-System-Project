@@ -1,11 +1,11 @@
 import re
-from typing import List, Union
+from typing import List, Tuple
 
 
 from utils import prompt_message_decorator, print_warning
 
 
-def get_menu_option(max_choice, msg='Please Indicate Your Choice', min_choice=1) -> Union[int, str]:
+def get_menu_option(max_choice, msg='Please Indicate Your Choice', min_choice=1) -> int:
     while True:
         user_input = input(prompt_message_decorator(msg))
         try:
@@ -56,6 +56,18 @@ def get_string_input(msg=None, allow_none=False) -> str:
             print_warning("Invalid Input! Please Try Again.")
 
 
+def get_int_input(msg=None, min_val=0, max_val=float('inf')) -> int:
+    while True:
+        user_input = input(prompt_message_decorator(msg))
+        try:
+            idx = int(user_input)
+            if not min_val <= idx <= max_val:
+                raise ValueError
+            return idx
+        except ValueError:
+            print_warning(f"Invalid Input! Your Input Should Be A Integer From {min_val} to {max_val}.")
+
+
 def get_confirmation_id(msg="Please Input Your Confirmation ID With Dashes (Case Insensitive)", to_lower_case=True) -> str:
     while True:
         try:
@@ -67,3 +79,20 @@ def get_confirmation_id(msg="Please Input Your Confirmation ID With Dashes (Case
         except ValueError:
             print_warning("Invalid Input! Please Try Again. Confirmation ID Should Be "
                           "36 Characters With Dashes Included.")
+
+
+def get_time_period(msg_suffix: str = None, precision='seconds') -> int:
+    values = []
+    seq = ("Days", "Hours", "Minutes", "Seconds")
+    if precision == 'second':
+        for i in range(4):
+            values.append(get_int_input(f'Please Input {seq[i]} To {msg_suffix}'))
+
+        return values[0] * 24 * 60 * 60 + values[1] * 60 * 60 + values[2] * 60 + values[3]
+    elif precision == 'minute':
+        for i in range(3):
+            values.append(get_int_input(f'Please Input {seq[i]} To {msg_suffix}'))
+
+        return values[0] * 24 * 60 + values[1] * 60 + values[2]
+    else:
+        raise NotImplementedError("Only Precisions Of Second/Minute Are Supported For Now")
