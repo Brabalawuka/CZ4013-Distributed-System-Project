@@ -37,6 +37,11 @@ class FacilityAvailSubscribingController(FacilityAvailCheckingController):
 
     @staticmethod
     def request_to_subscrption(facility_name: str, interval: int) -> str:
+        # reply_msg = request(ServiceType.FACILITY_AVAIL_CHECKING_SUBSCRIPTION, facility_name, interval)
+        # if reply_msg.msg_type == MessageType.EXCEPTION:
+        #     raise Exception(reply_msg.error_msg)
+        # return reply_msg.request_id
+
         # TODO
         return '1'
 

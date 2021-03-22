@@ -1,5 +1,5 @@
 from enum import Enum
-from typing import Tuple
+from typing import Tuple, Union
 import struct
 from uuid import uuid4 as uuid
 
@@ -31,6 +31,7 @@ type_to_hex = dict({
 class BaseMessage:
     def __init__(self, request_id: str):
         self.request_id = request_id
+        self.msg_type = None
 
 
 class CallMessage(BaseMessage):
@@ -94,7 +95,7 @@ class OneWayMessage(ReplyMessage):
         self.msg_type = MessageType.ONEWAY
 
 
-def unmarshall(data: bytes) -> BaseMessage:
+def unmarshall(data: bytes) -> Union[ReplyMessage, OneWayMessage, ExceptionMessage]:
     # TODO
     return ReplyMessage('1', [])
 

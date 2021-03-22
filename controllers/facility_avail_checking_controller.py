@@ -2,6 +2,7 @@ from datetime import datetime
 
 from controllers import BaseController
 from utils import *
+from helpers import *
 
 
 class FacilityAvailCheckingController(BaseController):
@@ -54,8 +55,13 @@ class FacilityAvailCheckingController(BaseController):
 
     @staticmethod
     def retrieve_facility_avail_by_days(facility_name: str, chosen_days: List[str]) -> List[str]:
+        # reply_msg = request(ServiceType.FACILITY_AVAIL_CHECKING, chosen_days)
+        # if reply_msg.msg_type == MessageType.REPLY:
+        #     return reply_msg.data
+        # else:
+        #     raise Exception(reply_msg.error_msg)
+
         # TODO
-        # raise Exception when facility name does not exist
         if facility_name == 'test error':
             raise Exception('Facility Is Not Included In The System!')
         return ["00:00-13:10;14:50-21:00;21:00-23:59" for _ in chosen_days]

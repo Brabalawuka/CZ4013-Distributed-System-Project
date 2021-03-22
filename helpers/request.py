@@ -1,7 +1,7 @@
-from typing import Callable
+from typing import Callable, Union
 
 from helpers import UDPClientSocket
-from utils import ServiceType, CallMessage, BaseMessage
+from utils import ServiceType, CallMessage, BaseMessage, ReplyMessage, OneWayMessage, ExceptionMessage
 
 
 def notify():
@@ -9,7 +9,7 @@ def notify():
     pass
 
 
-def request(service: ServiceType, *args, **kwargs) -> BaseMessage:
+def request(service: ServiceType, *args, **kwargs) -> Union[ReplyMessage, OneWayMessage, ExceptionMessage]:
     msg = CallMessage(service=service, data=args)
     marshalled_msg = msg.marshall()
     reply_msg = UDPClientSocket.send_msg(msg=marshalled_msg, request_id=msg.request_id, **kwargs)
