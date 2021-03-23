@@ -7,25 +7,22 @@ import java.util.*;
 
 public abstract class BasePublisher {
 
-    private final Map<String, BaseListener> listeners = new HashMap<String, BaseListener>();
+    private final Map<String, BaseListener> listenerMap = new HashMap<String, BaseListener>();
 
 
     public void attachListener(BaseListener listener){
-        listeners.put(listener.getClass().getName(), listener);
+        listenerMap.put(listener.getClass().getName(), listener);
     }
 
     public <T extends BaseXYZZObject> void notifyAllListeners(BaseXYZZMessage<T> message){
-        for (BaseListener listener : listeners.values()) {
+        for (BaseListener listener : listenerMap.values()) {
             listener.onMessage(message);
         }
     }
 
 
     //TODO: Deal with situation that listener doesnt exist
-    public <T extends BaseXYZZObject, K extends BaseListener> void notifySingleListeners(Class<K> listener, BaseXYZZMessage<T> message){
-        Optional.ofNullable(listeners.get(listener.getName())).ifPresentOrElse(
-                baseListener -> baseListener.onMessage(message),
-                () -> {}
-        );
+    public <T extends BaseXYZZObject, K extends BaseListener> Optional<BaseXYZZObject> notifySingleListeners(Class<K> listener, BaseXYZZMessage<T> message){
+        return Optional.ofNullable(listenerMap.get(listener.getName())).flatMap(l -> l.onMessage(message));
     }
 }

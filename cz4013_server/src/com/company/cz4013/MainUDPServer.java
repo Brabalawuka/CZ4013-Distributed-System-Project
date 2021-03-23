@@ -3,7 +3,6 @@ package com.company.cz4013;
 import com.company.cz4013.base.client.BaseUdpClient;
 import com.company.cz4013.base.client.BaseUdpMsg;
 import com.company.cz4013.base.dto.BaseXYZZMessage;
-import com.company.cz4013.base.event.BasePublisher;
 import com.company.cz4013.controller.MethodsController;
 import com.company.cz4013.exception.DeserialisationError;
 import com.company.cz4013.util.LRUCache;
@@ -19,7 +18,7 @@ import java.nio.ByteBuffer;
 public class MainUDPServer extends BaseUdpClient {
 
     private MethodsController controller;
-    private final LRUCache<String, BaseUdpMsg> messageHistory = new LRUCache<>(100);
+    private final LRUCache<String, BaseUdpMsg> messageHistory = new LRUCache<>(50);
 
 
 
@@ -38,6 +37,12 @@ public class MainUDPServer extends BaseUdpClient {
             msg.message = SerialisationTool.deserialiseToMsg(stream);
         } catch (DeserialisationError deserialisationError) {
             //TODO: Return error;
+        }
+        //Check for cached value in case of repetitive message
+        BaseUdpMsg storedMessage = messageHistory.get(msg.message.getUuId());
+        if(storedMessage != null){
+            sendMessage(storedMessage);
+            return storedMessage;
         }
         messageHistory.set(msg.message.getUuId(), msg);
 

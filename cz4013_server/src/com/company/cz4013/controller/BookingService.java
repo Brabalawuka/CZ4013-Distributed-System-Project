@@ -5,6 +5,8 @@ import com.company.cz4013.base.dto.BaseXYZZObject;
 import com.company.cz4013.base.event.BaseListener;
 import com.company.cz4013.base.event.BasePublisher;
 
+import java.util.Optional;
+
 public class BookingService extends BaseListener {
 
 
@@ -13,7 +15,8 @@ public class BookingService extends BaseListener {
     }
 
     @Override
-    public <T extends BaseXYZZObject> void onMessage(BaseXYZZMessage<T> message) {
+    public <T extends BaseXYZZObject> Optional<BaseXYZZObject> onMessage(BaseXYZZMessage<T> message) {
+        return Optional.empty();
 
     }
 }
