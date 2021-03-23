@@ -46,7 +46,8 @@ class UDPClientSocket:
                             if reply_message.request_id == request_id:
                                 return reply_message
                             else:
-                                print_warning('Unmatched Reply Message Detected! Discarding...')
+                                print_warning(f'Unmatched Reply Message "{reply_message.request_id}" '
+                                              f'Detected! Discarding...')
                         else:
                             print_warning(f'Unexpected External Message From {addr} Detected! Discarding...')
 

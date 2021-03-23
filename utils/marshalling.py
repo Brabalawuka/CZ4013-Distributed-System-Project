@@ -22,9 +22,9 @@ class ServiceType(Enum):
 type_to_hex = dict({
     int: b'\x00',
     float: b'\x01',
-    str: b'\x03',
-    bool: b'\x04',
-    list: b'\x05'
+    str: b'\x02',
+    bool: b'\x03',
+    list: b'\x04'
 })
 
 
@@ -96,13 +96,60 @@ class OneWayMessage(ReplyMessage):
 
 
 def unmarshall(data: bytes) -> Union[ReplyMessage, OneWayMessage, ExceptionMessage]:
-    # TODO
-    return ReplyMessage('1', [])
+    ptr = 0
+    msg_type_id = data[0]
+    ptr += 1
+    request_id = data[ptr:ptr + 36].decode('ascii')
+    ptr += 36
+    if msg_type_id == 2:
+        error_message = data[ptr:].decode('ascii')
+        return ExceptionMessage(request_id=request_id, error_msg=error_message)
+    elif msg_type_id == 1:
+        return ReplyMessage(request_id=request_id, data=parse_data(data, ptr))
+    elif msg_type_id == 3:
+        return OneWayMessage(request_id=request_id, data=parse_data(data, ptr))
+    else:
+        raise TypeError('Unexpected Message Of Type CALL Received!')
+
+
+def parse_data(data: bytes, ptr: int) -> list:
+    parsed_data = []
+    while ptr <= len(data) - 2:
+        data_type = data[ptr]
+        ptr += 1
+        if data_type == 4:  # TODO nested lists are not supported
+            inner_type = data[ptr]
+            ptr += 1
+            length, ptr_shift = _parse_data_with_type(data, ptr, 0)
+            length = struct.unpack('>i', data[ptr:ptr + 4])[0]
+            ptr += ptr_shift
+            list_data = []
+            for i in range(length):
+                parsed_field, ptr_shift = _parse_data_with_type(data, ptr, inner_type)
+                list_data.append(parsed_field)
+                ptr += ptr_shift
+            parsed_data.append(list_data)
+        else:
+            parsed_field, ptr_shift = _parse_data_with_type(data, ptr, data_type)
+            parsed_data.append(parsed_field)
+            ptr += ptr_shift
+    return parsed_data
+
+
+def _parse_data_with_type(data, ptr, data_type):
+    if data_type == 0:
+        return struct.unpack('>i', data[ptr:ptr + 4])[0], 4
+    elif data_type == 1:
+        return struct.unpack('>f', data[ptr:ptr + 4])[0], 4
+    elif data_type == 2:
+        length = struct.unpack('>i', data[ptr:ptr + 4])[0]
+        return data[ptr + 4:ptr + 4 + length].decode('ascii'), 4 + length
+    elif data_type == 3:
+        return struct.unpack('>i', data[ptr:ptr + 1]), 1
 
 
 if __name__ == '__main__':
     msg = CallMessage(service=ServiceType.FACILITY_AVAIL_CHECKING, data=('North Hill Gym', ['Sun', 'Coming Mon']))
     bytes_msg = msg.marshall()
     from helpers import UDPClientSocket
-
     UDPClientSocket.send_msg(msg=bytes_msg, request_id=msg.request_id)
