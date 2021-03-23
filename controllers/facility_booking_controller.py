@@ -2,6 +2,7 @@ from datetime import datetime
 
 from controllers import BaseController
 from utils import *
+from helpers import *
 
 
 class FacilityBookingController(BaseController):
@@ -53,7 +54,6 @@ class FacilityBookingController(BaseController):
             print_error(f'Booking Failed: {str(e)}')
 
     def _check_booking_interval(self, start_day, end_day, start_time, end_time) -> bool:
-        # TODO
         prefix_check = re.compile(r'Coming')
         is_start_coming = bool(prefix_check.match(start_day))
         is_end_coming = bool(prefix_check.match(end_day))
@@ -77,7 +77,12 @@ class FacilityBookingController(BaseController):
 
     @staticmethod
     def book_facility(facility_name: str, start_day, end_day, start_time, end_time) -> str:
-        # TODO
+        # TODO uncomment for connection to server
+        # reply_msg = request(ServiceType.FACILITY_BOOKING, facility_name, start_day, end_day, start_time, end_time)
+        # if reply_msg.msg_type == MessageType.EXCEPTION:
+        #     raise Exception(reply_msg.error_msg)
+        # return reply_msg.request_id
+
         if facility_name == 'test error':
             raise Exception('Reason to Fail')
         return 'cdf8d93f'.upper()

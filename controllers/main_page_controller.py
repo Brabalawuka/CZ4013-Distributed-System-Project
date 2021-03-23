@@ -40,13 +40,13 @@ class MainPageController(BaseController):
 
     @staticmethod
     def retrieve_facility_name_list():
+        # TODO uncomment for connection to server
         # reply_msg = request(service=ServiceType.FACILITY_NAMELIST_CHECKING)
         # if reply_msg.msg_type == MessageType.REPLY:
         #     return reply_msg.data
         # else:
         #     raise Exception(reply_msg.error_msg)
 
-        # TODO comment this line for interaction with backend
         return ['SRC Swimming Pool', 'North Hill Gym', 'SRC Tennis Court']
 
     @staticmethod

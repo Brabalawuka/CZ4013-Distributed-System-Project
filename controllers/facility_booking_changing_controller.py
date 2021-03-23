@@ -2,6 +2,7 @@ from typing import Union
 
 from controllers import BaseController
 from utils import *
+from helpers import *
 
 
 class FacilityBookingChangingController(BaseController):
@@ -66,7 +67,18 @@ class FacilityBookingChangingController(BaseController):
         pass
 
     def query_booking(self, booking_id: str) -> dict:
-        # TODO
+        # TODO uncomment for connection to server
+        # reply_msg = request(ServiceType.FACILITY_BOOKING_CHECKING, booking_id)
+        # if reply_msg.msg_type == MessageType.EXCEPTION:
+        #     raise Exception(reply_msg.error_msg)
+        # return dict(
+        #     facility_name=reply_msg.data[0],
+        #     start_day=reply_msg.data[1],
+        #     start_time=reply_msg.data[2],
+        #     end_day=reply_msg.data[3],
+        #     end_time=reply_msg.data[4],
+        # )
+
         if booking_id == '5e0629b5-3a16-4cc5-bd0a-2c09455d3aa7':
             raise Exception(self.error_msg[b'\x00'])
         return {
@@ -78,7 +90,11 @@ class FacilityBookingChangingController(BaseController):
         }
 
     def change_booking(self, booking_id: str, forward: bool, shift_time) -> None:
-        # TODO
+        # TODO uncomment for connection to server
+        # reply_msg = request(ServiceType.FACILITY_BOOKING_CHECKING, booking_id)
+        # if reply_msg.msg_type == MessageType.EXCEPTION:
+        #     raise Exception(reply_msg.error_msg)
+
         if booking_id == '5e0629b5-3a16-4cc5-bd0a-2c09455d3aa8':
             raise Exception(self.error_msg[b'\x00'])
         elif booking_id == '5e0629b5-3a16-4cc5-bd0a-2c09455d3aa9':
