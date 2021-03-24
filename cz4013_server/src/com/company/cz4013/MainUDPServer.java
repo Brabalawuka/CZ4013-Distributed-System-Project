@@ -58,12 +58,10 @@ public class MainUDPServer extends BaseUdpClient {
         }
 
         try {
-            Method method = MethodsController.class.getDeclaredMethod(MethodsController.methodHashMap.get(msg.message.getMethodName()),BaseXYZZMessage.class,
-                    ByteArrayInputStream.class, InetAddress.class, Integer.class);
-            BaseXYZZMessage<BaseXYZZObject> returnedMsg = (BaseXYZZMessage<BaseXYZZObject>)method.invoke(controller, msg.message, stream, msg.returnAddress, msg.returnPort);
-            msg.message = returnedMsg;
+            Method method = MethodsController.class.getDeclaredMethod(MethodsController.methodHashMap.get(msg.message.getMethodName()),BaseUdpMsg.class, ByteArrayInputStream.class);
+            msg = (BaseUdpMsg) method.invoke(controller, msg, stream);
             //Save returned msg for At Most Once Messages
-            if (returnedMsg.shouldCache()){
+            if (msg.message.shouldCache()){
                 messageHistory.set(msg.message.getUuId(), msg);
             }
 

@@ -9,7 +9,6 @@ public class Data extends TimerTask{
     private static final Calendar calender = Calendar.getInstance();
     private static final int NUMBER_OF_MINUTE_IN_A_WEEK = 60 * 24 * 7;
 
-
     public static volatile Map<String, Boolean> facilityList = new HashMap<>(){{
         put("Tutorial Room 1", true);
         put("Tutorial Room 2", true);
@@ -19,20 +18,6 @@ public class Data extends TimerTask{
         put("Tutorial Room 6", true);
         put("Tutorial Room 7", true);
     }};
-
-    public static volatile Map<String, Booking> bookingList = new HashMap<>();
-
-    /*
-    The facility Availibity is coded using a bit set with length of total minutes in a week
-     */
-    public static volatile Map<String, BitSet> facilityAvailibity = new HashMap<>();
-
-    static {
-        updatedayNameToIdxOffset();
-        facilityList.keySet().forEach(facilityName -> {
-            facilityAvailibity.put(facilityName, new BitSet(NUMBER_OF_MINUTE_IN_A_WEEK));
-        });
-    }
 
     private static final List<String> dayKeywords = new ArrayList<>() {{
         add("Mon");
@@ -44,8 +29,19 @@ public class Data extends TimerTask{
         add("Sun");
     }};
 
+    /*
+    The facility Availibity is coded using a bit set with length of total minutes in a week
+     */
+    public static volatile Map<String, BitSet> facilityAvailibity = new HashMap<>();
     public static volatile Map<String, Integer> dayNameToIdxOffset = new HashMap<>();
+    public static volatile Map<String, Booking> bookingList = new HashMap<>();
 
+    static {
+        updatedayNameToIdxOffset();
+        facilityList.keySet().forEach(facilityName -> {
+            facilityAvailibity.put(facilityName, new BitSet(NUMBER_OF_MINUTE_IN_A_WEEK));
+        });
+    }
 
     private static void updateFacilityAvailibity() {
         // TODO to be tested
