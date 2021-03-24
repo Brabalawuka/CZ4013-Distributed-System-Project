@@ -7,8 +7,8 @@ from uuid import uuid4 as uuid
 class MessageType(Enum):
     CALL = b'\x00'
     REPLY = b'\x01'
-    EXCEPTION = b'\x02'
-    ONEWAY = b'\x03'
+    ONEWAY = b'\x02'
+    EXCEPTION = b'\x03'
 
 
 class ServiceType(Enum):
@@ -103,12 +103,12 @@ def unmarshall(data: bytes) -> Union[ReplyMessage, OneWayMessage, ExceptionMessa
     ptr += 1
     request_id = data[ptr:ptr + 36].decode('ascii')
     ptr += 36
-    if msg_type_id == 2:
+    if msg_type_id == 3:
         error_message = data[ptr:].decode('ascii')
         return ExceptionMessage(request_id=request_id, error_msg=error_message)
     elif msg_type_id == 1:
         return ReplyMessage(request_id=request_id, data=parse_data(data, ptr))
-    elif msg_type_id == 3:
+    elif msg_type_id == 2:
         return OneWayMessage(request_id=request_id, data=parse_data(data, ptr))
     else:
         raise TypeError('Unexpected Message Of Type CALL Received!')
@@ -123,7 +123,6 @@ def parse_data(data: bytes, ptr: int) -> list:
             inner_type = data[ptr]
             ptr += 1
             length, ptr_shift = _parse_data_with_type(data, ptr, 0)
-            length = struct.unpack('>i', data[ptr:ptr + 4])[0]
             ptr += ptr_shift
             list_data = []
             for i in range(length):
@@ -140,14 +139,14 @@ def parse_data(data: bytes, ptr: int) -> list:
 
 def _parse_data_with_type(data, ptr, data_type):
     if data_type == 0:
-        return struct.unpack('>i', data[ptr:ptr + 4])[0], 4
+        return struct.unpack('<i', data[ptr:ptr + 4])[0], 4
     elif data_type == 1:
-        return struct.unpack('>f', data[ptr:ptr + 4])[0], 4
+        return struct.unpack('<f', data[ptr:ptr + 4])[0], 4
     elif data_type == 2:
-        length = struct.unpack('>i', data[ptr:ptr + 4])[0]
+        length = struct.unpack('<i', data[ptr:ptr + 4])[0]
         return data[ptr + 4:ptr + 4 + length].decode('ascii'), 4 + length
     elif data_type == 3:
-        return struct.unpack('>i', data[ptr:ptr + 1]), 1
+        return struct.unpack('<i', data[ptr:ptr + 1]), 1
 
 
 if __name__ == '__main__':

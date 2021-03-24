@@ -17,9 +17,9 @@ class SpecialCharacters:
     DOT = '\u2022'
 
 
-def print_options(opts: List[str], ordered: bool = True, new_line_at_end: bool = False) -> None:
+def print_options(opts: List[str], show_number: bool = True, new_line_at_end: bool = False) -> None:
     for i, opt in enumerate(opts, 1):
-        print(f"{Colors.OKCYAN}{f'{i} -' if ordered else SpecialCharacters.DOT}{Colors.ENDC} {opt}")
+        print(f"{Colors.OKCYAN}{f'{i} -' if show_number else SpecialCharacters.DOT}{Colors.ENDC} {opt}")
     if new_line_at_end:
         print()
 
@@ -56,8 +56,9 @@ def print_timetable(days: List[str], avail_by_days: List[str],
     max_len_str = max(days, key=len)
     content = []
     for i, v in enumerate(days):
-        content.append(f'{v + " " * (len(max_len_str) - len(v))}: {" | ".join(avail_by_days[i].split(";"))}')
-    print_options(content, ordered=False)
+        content.append(f'{v + " " * (len(max_len_str) - len(v))}: '
+                       f'{" | ".join(avail_by_days[i].split(";")) if len(avail_by_days[i]) > 0 else "No Available Slots"}')
+    print_options(content, show_number=False)
     if new_line_at_end:
         print()
 
@@ -71,6 +72,6 @@ def print_booking(booking_id: str, facility_name: str, start_day: str, start_tim
         f'Facility Name: {facility_name}',
         f'Start Time: {start_day} {start_time}',
         f'End Time: {end_day} {end_time}'
-    ], ordered=False)
+    ], show_number=False)
     if new_line_at_end:
         print()

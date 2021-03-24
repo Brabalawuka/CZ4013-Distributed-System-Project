@@ -21,7 +21,7 @@ class BaseController(ABC):
         print_options(self.options)
 
     def show_unordered_options(self):
-        print_options(self.options, ordered=False)
+        print_options(self.options, show_number=False)
 
     def start(self, *args, **kwargs):
         while True:

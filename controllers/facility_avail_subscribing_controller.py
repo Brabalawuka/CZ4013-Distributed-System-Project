@@ -12,7 +12,7 @@ class FacilityAvailSubscribingController(FacilityAvailCheckingController):
 
     def enter(self, *args, **kwargs) -> int:
         self.show_message()
-        print_options(self.options, ordered=False)
+        print_options(self.options, show_number=False)
         facility_name = get_string_input(f'Please Indicate the Target Facility by Typing '
                                          f'{inline_important_message_decorator("Full Name")}')
 

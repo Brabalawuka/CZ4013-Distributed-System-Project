@@ -31,7 +31,7 @@ class FacilityBookingController(BaseController):
                                                      msg="Please Indicate the Target Facility by Number (e.g. 1)")]
         current_day = datetime.today().weekday()
         day_list = self.day_list[current_day:] + [f'Coming {d}' for d in self.day_list[:current_day]]
-        print_options(day_list, ordered=False)
+        print_options(day_list, show_number=False)
         start_day = get_string_options(list_of_vals=day_list, msg='Please Indicate The Starting Day',
                                        max_num_of_choice=1)[0]
         start_time = get_time(msg='Please Indicate A Starting Time In 24hrs Format (e.g. 07:30)')

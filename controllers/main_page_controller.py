@@ -2,8 +2,8 @@ import sys
 
 from controllers import BaseController, FacilityAvailCheckingController, \
     FacilityBookingController, FacilityBookingChangingController, FacilityAvailSubscribingController
-from utils import get_menu_option, print_message, CallMessage, ServiceType, MessageType
-from helpers import request
+from utils import *
+from helpers import *
 
 
 class MainPageController(BaseController):
@@ -41,13 +41,17 @@ class MainPageController(BaseController):
     @staticmethod
     def retrieve_facility_name_list():
         # TODO uncomment for connection to server
-        # reply_msg = request(service=ServiceType.FACILITY_NAMELIST_CHECKING)
-        # if reply_msg.msg_type == MessageType.REPLY:
-        #     return reply_msg.data
-        # else:
-        #     raise Exception(reply_msg.error_msg)
+        try:
+            reply_msg = request(service=ServiceType.FACILITY_NAMELIST_CHECKING)
+            if reply_msg.msg_type == MessageType.REPLY:
+                return reply_msg.data[0]
+            else:
+                raise Exception(reply_msg.error_msg)
+        except Exception as e:
+            print_error(f"Server Unavailable: {str(e)}. Please Try Again Later.")
+            sys.exit()
 
-        return ['SRC Swimming Pool', 'North Hill Gym', 'SRC Tennis Court']
+        # return ['SRC Swimming Pool', 'North Hill Gym', 'SRC Tennis Court']
 
     @staticmethod
     def exit():
