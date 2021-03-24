@@ -86,7 +86,7 @@ public class SerialisationTool {
 
     public static <T extends BaseXYZZObject> T deserialiseToObject(ByteArrayInputStream stream, T decodeObject) throws Exception {
 
-        List<Field> fields = BaseXYZZObject.getOrderedField(decodeObject.getClass().getFields());
+        List<Field> fields = BaseXYZZObject.getOrderedField(decodeObject.getClass().getDeclaredFields());
 
         //Interpret Every
         for (Field field : fields) {

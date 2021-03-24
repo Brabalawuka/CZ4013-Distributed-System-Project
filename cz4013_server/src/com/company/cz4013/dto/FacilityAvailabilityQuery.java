@@ -3,12 +3,14 @@ package com.company.cz4013.dto;
 import com.company.cz4013.base.dto.BaseXYZZObject;
 import com.company.cz4013.base.dto.XYZZFieldAnnotation;
 
+import java.util.List;
+
 public class FacilityAvailabilityQuery extends BaseXYZZObject {
 
     @XYZZFieldAnnotation(order = 1)
     private String facilityName;
     @XYZZFieldAnnotation(order = 2)
-    private String[] days;
+    private List<String> days;
 
 
     public String getFacilityName() {
@@ -19,11 +21,11 @@ public class FacilityAvailabilityQuery extends BaseXYZZObject {
         this.facilityName = facilityName;
     }
 
-    public String[] getDays() {
+    public List<String> getDays() {
         return days;
     }
 
-    public void setDays(String[] days) {
+    public void setDays(List<String> days) {
         this.days = days;
     }
 }

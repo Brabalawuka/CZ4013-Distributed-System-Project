@@ -37,7 +37,7 @@ public class MethodsController extends BasePublisher {
             msg.setData(query);
 
             returnMsg.setType(XYZZMessageType.REPLY);
-            bookingService.getFacilityAvailibity(msg.getData());
+            returnMsg.setData(bookingService.getFacilityAvailibity(msg.getData()));
         } catch (Exception e) {
             returnMsg.setType(XYZZMessageType.ERROR);
             returnMsg.setData(new ErrorMessageResponse(

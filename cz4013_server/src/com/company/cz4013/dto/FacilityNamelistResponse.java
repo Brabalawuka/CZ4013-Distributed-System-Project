@@ -16,4 +16,8 @@ public class FacilityNamelistResponse extends BaseXYZZObject {
         this.facilityList = facilityList;
     }
 
+    public List<String> getFacilityList() {
+        return facilityList;
+    }
+
 }
