@@ -46,8 +46,7 @@ class UDPClientSocket:
                             if reply_message.request_id == request_id:
                                 return reply_message
                             else:
-                                print_warning(f'Unmatched Reply Message "{reply_message.request_id}" '
-                                              f'Detected! Discarding...')
+                                print_warning('Unexpected Message From Server Detected! Discarding...')
                         else:
                             print_warning(f'Unexpected External Message From {addr} Detected! Discarding...')
 
@@ -64,7 +63,7 @@ class UDPClientSocket:
             cls.UDPSocket.sendto(msg, cls.serverAddressPort)
 
     @classmethod
-    def listen_msg(cls, subscribe_time: int, request_id: int, call_back_function: Callable, buffer_size: int = 1024) -> None:
+    def listen_msg(cls, subscribe_time: int, subscription_id: int, call_back_function: Callable, buffer_size: int = 1024) -> None:
         end_time = time() + subscribe_time
         cls.UDPSocket.settimeout(subscribe_time)
 
@@ -75,10 +74,10 @@ class UDPClientSocket:
 
                 if addr == cls.serverAddressPort:
                     reply_message = unmarshall(data)
-                    if reply_message.request_id == request_id:
+                    if reply_message.request_id == subscription_id:
                         call_back_function(reply_message)
                     else:
-                        print_warning('Unmatched Reply Message Detected! Discarding...')
+                        print_warning('Unexpected Message From Server Detected! Discarding...')
                 else:
                     print_warning(f'Unexpected External Message From {addr} Detected! Discarding...')
 
