@@ -26,7 +26,7 @@ class FacilityAvailSubscribingController(FacilityAvailCheckingController):
         print_message(f'Subscribing for the Availability of {facility_name}...')
         try:
             subscription_id = self.request_to_subscrption(facility_name, interval=sub_time_in_seconds)
-            print_message(f'You Have Just Successfully Subscribed For The Availability of {facility_name}!')
+            print_message(f'\nYou Have Just Successfully Subscribed For The Availability of {facility_name}!')
             print_message(f'If You Would Like To Unsubscribe: Press {inline_important_message_decorator("Ctrl + C")} ')
             try:
                 listen(func=self.display_availblity, subscribe_time=sub_time_in_seconds,
@@ -34,7 +34,7 @@ class FacilityAvailSubscribingController(FacilityAvailCheckingController):
             except KeyboardInterrupt:
                 return
         except Exception as e:
-            print_error(f"Subscription Failed! {str(e)}")
+            print_error(f"Subscription Failed: {str(e)}")
 
     @staticmethod
     def request_to_subscrption(facility_name: str, interval: int) -> str:

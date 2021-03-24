@@ -4,7 +4,7 @@ from typing import Union, Callable
 import random
 
 from configs import *
-from utils import print_warning, print_error, unmarshall, BaseMessage
+from utils import *
 
 
 def get_free_port():
@@ -83,6 +83,7 @@ class UDPClientSocket:
 
                 cls.UDPSocket.settimeout(end_time - end)
         except (socket.timeout, ValueError):
+            print_message("\nYour Subscription Has Just Expired. Thanks For Using!")
             return
 
 
