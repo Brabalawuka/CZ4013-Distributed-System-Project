@@ -59,20 +59,20 @@ class CallMessage(BaseMessage):
 
         # FIXME little-endian problem - need to be consistent with server
         if type_a is int:
-            serialized_form += struct.pack('>i', a)
+            serialized_form += struct.pack('<i', a)
         elif type_a is float:
-            serialized_form += struct.pack('>f', a)
+            serialized_form += struct.pack('<f', a)
         elif type_a is bool:
-            serialized_form += struct.pack('>b', a)
+            serialized_form += struct.pack('<b', a)
         elif type_a is str:
-            serialized_form += struct.pack('>i', len(a)) + bytes(a.encode('ascii'))
+            serialized_form += struct.pack('<i', len(a)) + bytes(a.encode('ascii'))
         elif type_a is list:
             # FIXME not empty array allowed
             inner_type = type(a[0])
             serialized_inner_data = bytearray()
             for inner_a in a:
                 serialized_inner_data += cls._serialize_data(inner_a)[1:]  # type is not needed
-            serialized_form += type_to_hex[inner_type] + struct.pack('>i', len(a)) + serialized_inner_data
+            serialized_form += type_to_hex[inner_type] + struct.pack('<i', len(a)) + serialized_inner_data
 
         return serialized_form
 
