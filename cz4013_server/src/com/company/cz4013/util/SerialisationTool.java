@@ -70,7 +70,6 @@ public class SerialisationTool {
         stream.write(XYZZMessageType.toInteger(message.getType()));
 
         //Write UUID TODO: USE BASE64 to compress UUID in to 24byte
-        byte[] uuid = new byte[36];
         stream.write(message.getUuId().toString().getBytes(), 0, 36);
 
         //WriteData
@@ -78,7 +77,6 @@ public class SerialisationTool {
             throw new SerialisationError("No XYZZObject detected: " + message.getUuId() + message.getMethodName());
         }
 
-        // FIXME: does not handel error message
         serialiseObjectTostream(stream, message.getData());
         return stream;
     }
@@ -182,7 +180,8 @@ public class SerialisationTool {
                 stream.write(strBytes);
                 return stream;
             case 3:
-                boolean boolVal = field.getBoolean(object);
+                Boolean boolVal = (Boolean) field.get(object);
+//                boolean boolVal = field.getBoolean(object);
                 if (boolVal) {
                     stream.write(1);
                 } else {
@@ -196,7 +195,6 @@ public class SerialisationTool {
                 //Get list length
                 int length = ((Collection)field.get(object)).size();
                 //get list type -> int
-                //TODO: notsure it will get correct type or not
                 int listType = typeToIntMap.getOrDefault(c, -1);
                 //write inner type
                 stream.write(listType);

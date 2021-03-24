@@ -17,6 +17,7 @@ import java.lang.invoke.MethodHandle;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.DatagramSocket;
+import java.net.InetAddress;
 import java.nio.ByteBuffer;
 import java.util.UUID;
 
@@ -62,11 +63,12 @@ public class MainUDPServer extends BaseUdpClient {
         //TODO: HANDLE MESSAGE HISTORY
 
         try {
-            Method method = MethodsController.class.getDeclaredMethod(MethodsController.methodHashMap.get(msg.message.getMethodName()),BaseXYZZMessage.class, ByteArrayInputStream.class);
-            BaseXYZZMessage<BaseXYZZObject> returnedMsg = (BaseXYZZMessage<BaseXYZZObject>)method.invoke(controller, msg.message, stream);
+            Method method = MethodsController.class.getDeclaredMethod(MethodsController.methodHashMap.get(msg.message.getMethodName()),BaseXYZZMessage.class,
+                    ByteArrayInputStream.class, InetAddress.class, Integer.class);
+            BaseXYZZMessage<BaseXYZZObject> returnedMsg = (BaseXYZZMessage<BaseXYZZObject>)method.invoke(controller, msg.message, stream, msg.returnAddress, msg.returnPort);
             msg.message = returnedMsg;
             //Save returned msg
-            messageHistory.set(msg.message.getUuId(), msg);
+            messageHistory.set(msg.message.getUuId(), msg); //FIXME: booking successful msg needs to be stored, but facility avail should not be cached
             sendMessage(msg, 0);
         } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
             //TODO : NO METHOD ERROR + METHOD INVOCATION ERROR

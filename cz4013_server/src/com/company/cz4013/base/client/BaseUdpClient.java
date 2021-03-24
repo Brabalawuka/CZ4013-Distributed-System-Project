@@ -32,6 +32,7 @@ public abstract class BaseUdpClient {
         DatagramPacket replyPacket = new DatagramPacket(message.data, message.data.length, message.returnAddress, message.returnPort);
 
         try {
+            //TODO simulate omission failure
             socket.send(replyPacket);
         } catch (IOException e) {
             e.printStackTrace();

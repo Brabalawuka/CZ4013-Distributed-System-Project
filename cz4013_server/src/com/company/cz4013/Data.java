@@ -47,13 +47,13 @@ public class Data extends TimerTask{
         updatedayNameToIdxOffset();
     }
 
-    private static void updateFacilityAvailibity(){
+    private static void updateFacilityAvailibity() {
         // TODO to be tested
         facilityAvailibity.forEach((key,value) ->
                 facilityAvailibity.put(key, value.get(60 * 24, Math.max(60 * 24, value.length()))));
     }
 
-    private static void updatedayNameToIdxOffset(){
+    private static void updatedayNameToIdxOffset() {
         Date date = calender.getTime();
         String currentDay = new SimpleDateFormat("EE", Locale.ENGLISH).format(date.getTime());
         int zeroOffSetPosition = dayKeywords.indexOf(currentDay);
@@ -69,12 +69,17 @@ public class Data extends TimerTask{
         }
     }
 
+    private static void updateBookingDay() {
+        // TODO update booking i.e. delete out-dated booking and Coming XXX -> XXX on every monday
+    }
+
     @Override
     public void run() {
         // FIXME this could possibly happen at the same time when they user is trying to access availability
         System.out.println("Updating Time Slots...");
         updateFacilityAvailibity();
         updatedayNameToIdxOffset();
+        updateBookingDay();
         System.out.println("Finished Updating Time Slots!");
 
     }
