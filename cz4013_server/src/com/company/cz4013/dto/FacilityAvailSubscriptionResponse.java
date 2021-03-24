@@ -4,11 +4,17 @@ import com.company.cz4013.base.dto.BaseXYZZObject;
 import com.company.cz4013.base.dto.XYZZFieldAnnotation;
 
 import java.util.List;
+import java.util.UUID;
 
 public class FacilityAvailSubscriptionResponse extends BaseXYZZObject {
-
     @XYZZFieldAnnotation(order = 1)
-    public Boolean success = true;
+    private String subscriptionId;
 
-    public FacilityAvailSubscriptionResponse(){}
+    public FacilityAvailSubscriptionResponse(String subscriptionId) {
+        this.subscriptionId = subscriptionId;
+    }
+
+    public String getSubscriptionId() {
+        return subscriptionId;
+    }
 }

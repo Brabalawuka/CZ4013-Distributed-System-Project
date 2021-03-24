@@ -46,7 +46,7 @@ public class MethodsController extends BasePublisher {
     public BaseUdpMsg checkFacilityNameList(BaseUdpMsg msg, ByteArrayInputStream stream){
 
         try {
-            msg.message = msg.message.copyToNewMessage(bookingService.getFacilityNameList(), XYZZMessageType.REPLY, true);
+            msg.message = msg.message.copyToNewMessage(bookingService.getFacilityNameList(), XYZZMessageType.REPLY, false);
         } catch (Exception e) {
             msg.message = msg.message.copyToNewMessage(new ErrorMessageResponse(
                     e.getMessage()
