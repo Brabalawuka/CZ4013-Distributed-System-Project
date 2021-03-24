@@ -3,6 +3,7 @@ package com.company.cz4013;
 import com.company.cz4013.base.client.BaseUdpClient;
 import com.company.cz4013.base.client.BaseUdpMsg;
 import com.company.cz4013.base.dto.BaseXYZZMessage;
+import com.company.cz4013.base.dto.BaseXYZZObject;
 import com.company.cz4013.base.dto.XYZZMessageType;
 import com.company.cz4013.controller.MethodsController;
 import com.company.cz4013.dto.ErrorMessageResponse;
@@ -54,16 +55,20 @@ public class MainUDPServer extends BaseUdpClient {
         //Check for cached value in case of repetitive message
         BaseUdpMsg storedMessage = messageHistory.get(msg.message.getUuId());
         if(storedMessage != null){
-            sendMessage(storedMessage);
+            sendMessage(storedMessage, 0);
             return storedMessage;
         }
-        messageHistory.set(msg.message.getUuId(), msg);
+
 
         //TODO: HANDLE MESSAGE HISTORY
 
         try {
             Method method = MethodsController.class.getDeclaredMethod(MethodsController.methodHashMap.get(msg.message.getMethodName()),BaseXYZZMessage.class, ByteArrayInputStream.class);
-            method.invoke(controller, msg.message, stream);
+            BaseXYZZMessage<BaseXYZZObject> returnedMsg = (BaseXYZZMessage<BaseXYZZObject>)method.invoke(controller, msg.message, stream);
+            msg.message = returnedMsg;
+            //Save returned msg
+            messageHistory.set(msg.message.getUuId(), msg);
+            sendMessage(msg, 0);
         } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
             //TODO : NO METHOD ERROR + METHOD INVOCATION ERROR
         }

@@ -6,6 +6,9 @@ public class BaseXYZZMessage<T extends BaseXYZZObject> {
 
     private UUID uuId;
     private XYZZMessageType type;
+    private String methodName;
+    private T data;
+
 
     public void setMethodName(String methodName) {
         this.methodName = methodName;
@@ -15,9 +18,7 @@ public class BaseXYZZMessage<T extends BaseXYZZObject> {
         return methodName;
     }
 
-    private String methodName;
 
-    private T data;
 
     public UUID getUuId() {
         return uuId;

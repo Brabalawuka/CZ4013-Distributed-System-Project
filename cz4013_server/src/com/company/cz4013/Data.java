@@ -32,4 +32,6 @@ public class Data {
         put("Tutorial Room 6", new BitSet(NUMBER_OF_MINUTE_IN_A_WEEK));
         put("Tutorial Room 7", new BitSet(NUMBER_OF_MINUTE_IN_A_WEEK));
     }};
+
+
 }

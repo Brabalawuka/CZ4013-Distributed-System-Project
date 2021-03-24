@@ -228,12 +228,7 @@ public class SerialisationTool {
                 return stream;
 
         }
-
-
         throw new SerialisationError("Wrong MessageType: " + field.getName() + field.getClass());
     }
-
-
-
 
 }
