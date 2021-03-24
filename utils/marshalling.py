@@ -146,7 +146,7 @@ def _parse_data_with_type(data, ptr, data_type):
         length = struct.unpack('<i', data[ptr:ptr + 4])[0]
         return data[ptr + 4:ptr + 4 + length].decode('ascii'), 4 + length
     elif data_type == 3:
-        return struct.unpack('<i', data[ptr:ptr + 1]), 1
+        return struct.unpack('<b', data[ptr:ptr + 1]), 1
 
 
 if __name__ == '__main__':
