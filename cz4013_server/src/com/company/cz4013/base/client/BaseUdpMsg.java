@@ -11,7 +11,7 @@ public class BaseUdpMsg {
     //before decode
     public byte[] data;
     //after decode
-    public BaseXYZZMessage<?> message;
+    public BaseXYZZMessage message;
 
     public BaseUdpMsg(InetAddress returnAddress, int returnPort, byte[] data) {
         this.returnAddress = returnAddress;

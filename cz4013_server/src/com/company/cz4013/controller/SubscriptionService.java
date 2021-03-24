@@ -1,35 +1,47 @@
 package com.company.cz4013.controller;
 
 import com.company.cz4013.Data;
-import com.company.cz4013.base.dto.BaseXYZZObject;
 import com.company.cz4013.dto.FacilityAvailSubscriptionResponse;
 import com.company.cz4013.dto.FacilitySubscriptionQuery;
+import com.company.cz4013.dto.FacilitySubscriptionRequest;
 
 import java.net.InetAddress;
 import java.util.*;
 
 public class SubscriptionService {
-    // TODO a better way to store subscribers?
-    private static Map<String, ArrayList<InetAddress>> subscriptionAddress = new HashMap<>();
-    private static Map<String, ArrayList<Integer>> subscriptionPort = new HashMap<>();
-    private static Map<String, ArrayList<Date>> subscriptionEndTime = new HashMap<>();
-    static {
+
+
+    private static final Map<String, ArrayList<Subscription>> subscription = new HashMap<>();
+
+    private static class Subscription{
+
+        public InetAddress address;
+        public int port;
+        public long subscriptionEndTime;
+
+        public Subscription(InetAddress address, int port, long subscriptionEndTime) {
+            this.address = address;
+            this.port = port;
+            this.subscriptionEndTime = subscriptionEndTime;
+        }
+    }
+
+    public SubscriptionService(){
         Data.facilityList.keySet().forEach(facilityName -> {
-            subscriptionAddress.put(facilityName, new ArrayList<>());
-            subscriptionPort.put(facilityName, new ArrayList<>());
-            subscriptionEndTime.put(facilityName, new ArrayList<>());
+            subscription.put(facilityName, new ArrayList<>());
         });
     }
 
-    public static BaseXYZZObject register(InetAddress clientAddress, int portNum, FacilitySubscriptionQuery query) throws Exception {
+    public FacilityAvailSubscriptionResponse register(FacilitySubscriptionRequest request) throws Exception {
+        FacilitySubscriptionQuery query = request.getData();
         if (!Data.facilityList.containsKey(query.getFacilityName())) {
             throw new Exception("Facility Not Found");
         }
-        subscriptionAddress.get(query.getFacilityName()).add(clientAddress);
-        subscriptionPort.get(query.getFacilityName()).add(portNum);
-        Date expireTime = new Date();
-        expireTime.setTime(expireTime.getTime() + query.getSubscribeTime() * 1000);
-        subscriptionEndTime.get(query.getFacilityName()).add(expireTime);
+        subscription.get(query.getFacilityName()).add(new Subscription(
+                request.getAddress(),
+                request.getPort(),
+                new Date().getTime() + query.getSubscribeTime() * 1000
+        ));
         return new FacilityAvailSubscriptionResponse();
     }
 

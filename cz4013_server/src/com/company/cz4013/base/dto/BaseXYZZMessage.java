@@ -4,10 +4,20 @@ import java.util.UUID;
 
 public class BaseXYZZMessage<T extends BaseXYZZObject> {
 
-    private UUID uuId;
-    private XYZZMessageType type;
-    private String methodName;
-    private T data;
+    protected UUID uuId;
+    protected XYZZMessageType type;
+    protected String methodName;
+    protected T data;
+
+    public boolean shouldCache() {
+        return shouldCache;
+    }
+
+    public void setShouldCache(boolean shouldCache) {
+        this.shouldCache = shouldCache;
+    }
+
+    private boolean shouldCache;
 
 
     public void setMethodName(String methodName) {
@@ -45,5 +55,14 @@ public class BaseXYZZMessage<T extends BaseXYZZObject> {
 
     public void setData(T data) {
         this.data = data;
+    }
+
+    public <K extends BaseXYZZObject> BaseXYZZMessage<K> copyToNewMessage(K object, XYZZMessageType type, boolean shouldCache){
+        BaseXYZZMessage<K> baseXYZZMessage = new BaseXYZZMessage<K>();
+        baseXYZZMessage.setUuId(uuId);
+        baseXYZZMessage.setMethodName(methodName);
+        baseXYZZMessage.setData(object);
+        baseXYZZMessage.setType(type);
+        return baseXYZZMessage;
     }
 }

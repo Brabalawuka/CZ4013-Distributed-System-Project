@@ -160,7 +160,7 @@ public class SerialisationTool {
 
     private static ByteArrayOutputStream encodeNext(ByteArrayOutputStream stream, Integer fieldTypeInt,  Field field, BaseXYZZObject object) throws Exception {
 
-        //TODO: TEST THIS CLASS MAPPING
+
         switch (fieldTypeInt){
             case -1:
                 throw new SerialisationError("Wrong MessageType: " + fieldTypeInt);

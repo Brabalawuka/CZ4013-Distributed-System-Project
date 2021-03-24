@@ -1,18 +1,12 @@
 package com.company.cz4013.controller;
 
-import com.company.cz4013.base.dto.BaseXYZZMessage;
-import com.company.cz4013.base.dto.BaseXYZZObject;
+import com.company.cz4013.base.client.BaseUdpMsg;
 import com.company.cz4013.base.dto.XYZZMessageType;
 import com.company.cz4013.base.event.BasePublisher;
-import com.company.cz4013.dto.ErrorMessageResponse;
-import com.company.cz4013.dto.FacilityAvailabilityQuery;
-import com.company.cz4013.dto.FacilitySubscriptionQuery;
-import com.company.cz4013.exception.DeserialisationError;
+import com.company.cz4013.dto.*;
 import com.company.cz4013.util.SerialisationTool;
 
 import java.io.ByteArrayInputStream;
-import java.lang.reflect.Method;
-import java.net.InetAddress;
 import java.util.HashMap;
 
 public class MethodsController extends BasePublisher {
@@ -21,80 +15,62 @@ public class MethodsController extends BasePublisher {
     private SubscriptionService subscriptionService;
 
     public MethodsController (){
+
         bookingService = new BookingService();
+        subscriptionService = new SubscriptionService();
     }
 
     public static HashMap<String, String> methodHashMap = new HashMap<>(){{
         put("FACILITY_AVAIL_CHECKING", "checkFacilityAvailability");
         put("FACILITY_NAMELIST_CHECKING", "checkFacilityNameList");
-        put("FACILITY_AVAIL_CHECKING_SUBSCRIPTION", "subscribeFacilityAvailability");
+        put("FACILITY_AVAIL_CHECKING_SUBSCRIPTION", "subscribeToFacilityAvailability");
     }};
 
 
-    public BaseXYZZMessage<BaseXYZZObject> checkFacilityAvailability(BaseXYZZMessage<FacilityAvailabilityQuery> msg,
-                                                                     ByteArrayInputStream stream,
-                                                                     InetAddress clientAddress, Integer clientPort){
+    public BaseUdpMsg checkFacilityAvailability(BaseUdpMsg msg, ByteArrayInputStream stream){
 
-        BaseXYZZMessage returnMsg = new BaseXYZZMessage<>();
-        returnMsg.setUuId(msg.getUuId());
         try {
             FacilityAvailabilityQuery query = SerialisationTool.deserialiseToObject(stream, new FacilityAvailabilityQuery());
-            msg.setData(query);
+            msg.message = msg.message.copyToNewMessage(bookingService.getFacilityAvailibity(query), XYZZMessageType.REPLY, false);
 
-            returnMsg.setType(XYZZMessageType.REPLY);
-            returnMsg.setData(bookingService.getFacilityAvailibity(msg.getData()));
         } catch (Exception e) {
-            returnMsg.setType(XYZZMessageType.ERROR);
-            returnMsg.setData(new ErrorMessageResponse(
-                   e.getMessage()
-            ));
-            e.printStackTrace();
-        }
-        return returnMsg;
-
-    }
-
-    public BaseXYZZMessage<BaseXYZZObject> checkFacilityNameList(BaseXYZZMessage msg,
-                                                                 ByteArrayInputStream stream,
-                                                                 InetAddress clientAddress, Integer clientPort){
-
-        BaseXYZZMessage returnMsg = new BaseXYZZMessage<>();
-        returnMsg.setUuId(msg.getUuId());
-        try {
-            returnMsg.setType(XYZZMessageType.REPLY);
-            returnMsg.setData(bookingService.getFacilityNameList());
-        } catch (Exception e) {
-            returnMsg.setType(XYZZMessageType.ERROR);
-            returnMsg.setData(new ErrorMessageResponse(
+            msg.message = msg.message.copyToNewMessage(new ErrorMessageResponse(
                     e.getMessage()
-            ));
+            ), XYZZMessageType.ERROR, false);
             e.printStackTrace();
         }
-        return returnMsg;
+        return msg;
 
     }
 
-    public BaseXYZZMessage<BaseXYZZObject> subscribeFacilityAvailability(BaseXYZZMessage<FacilitySubscriptionQuery> msg,
-                                                                         ByteArrayInputStream stream,
-                                                                         InetAddress clientAddress, Integer clientPort){
+    public BaseUdpMsg checkFacilityNameList(BaseUdpMsg msg, ByteArrayInputStream stream){
 
-        BaseXYZZMessage returnMsg = new BaseXYZZMessage<>();
-        returnMsg.setUuId(msg.getUuId());
-        returnMsg.setMethodName(msg.getMethodName());
+        try {
+            msg.message = msg.message.copyToNewMessage(bookingService.getFacilityNameList(), XYZZMessageType.REPLY, true);
+        } catch (Exception e) {
+            msg.message = msg.message.copyToNewMessage(new ErrorMessageResponse(
+                    e.getMessage()
+            ), XYZZMessageType.ERROR, false);
+            e.printStackTrace();
+        }
+
+        return msg;
+
+    }
+
+    public BaseUdpMsg subscribeToFacilityAvailability(BaseUdpMsg msg, ByteArrayInputStream stream){
+
         try {
             FacilitySubscriptionQuery query = SerialisationTool.deserialiseToObject(stream, new FacilitySubscriptionQuery());
-            msg.setData(query);
-
-            returnMsg.setType(XYZZMessageType.REPLY);
-            returnMsg.setData(SubscriptionService.register(clientAddress, clientPort, msg.getData()));
+            FacilityAvailSubscriptionResponse response = subscriptionService.register(new FacilitySubscriptionRequest(msg.message, query, msg.returnAddress,msg.returnPort));
+            msg.message = msg.message.copyToNewMessage(response, XYZZMessageType.REPLY, true);
         } catch (Exception e) {
-            returnMsg.setType(XYZZMessageType.ERROR);
-            returnMsg.setData(new ErrorMessageResponse(
+            msg.message = msg.message.copyToNewMessage(new ErrorMessageResponse(
                     e.getMessage()
-            ));
+            ), XYZZMessageType.ERROR, false);
             e.printStackTrace();
         }
-        return returnMsg;
+        return msg;
 
     }
 }

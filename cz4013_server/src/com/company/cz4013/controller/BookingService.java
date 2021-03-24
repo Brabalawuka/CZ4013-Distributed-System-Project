@@ -20,7 +20,7 @@ public class BookingService {
         return String.format("%02d:%02d", h, m);
     }
 
-    public BaseXYZZObject getFacilityAvailibity(FacilityAvailabilityQuery query) throws Exception {
+    public FacilityAvailabilityResponse getFacilityAvailibity(FacilityAvailabilityQuery query) throws Exception {
         if (!Data.facilityList.containsKey(query.getFacilityName())) {
             throw new Exception("Facility Not Found");
         }
@@ -49,7 +49,7 @@ public class BookingService {
         return new FacilityAvailabilityResponse(availability);
     }
 
-    public BaseXYZZObject getFacilityNameList() {
+    public FacilityNamelistResponse getFacilityNameList() {
         return new FacilityNamelistResponse(new ArrayList<>(Data.facilityList.keySet()));
     }
 

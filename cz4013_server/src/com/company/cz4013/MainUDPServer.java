@@ -7,18 +7,15 @@ import com.company.cz4013.base.dto.BaseXYZZObject;
 import com.company.cz4013.base.dto.XYZZMessageType;
 import com.company.cz4013.controller.MethodsController;
 import com.company.cz4013.dto.ErrorMessageResponse;
-import com.company.cz4013.exception.DeserialisationError;
 import com.company.cz4013.util.LRUCache;
 import com.company.cz4013.util.SerialisationTool;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.lang.invoke.MethodHandle;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
-import java.nio.ByteBuffer;
 import java.util.UUID;
 
 public class MainUDPServer extends BaseUdpClient {
@@ -60,18 +57,25 @@ public class MainUDPServer extends BaseUdpClient {
             return storedMessage;
         }
 
-        //TODO: HANDLE MESSAGE HISTORY
-
         try {
             Method method = MethodsController.class.getDeclaredMethod(MethodsController.methodHashMap.get(msg.message.getMethodName()),BaseXYZZMessage.class,
                     ByteArrayInputStream.class, InetAddress.class, Integer.class);
             BaseXYZZMessage<BaseXYZZObject> returnedMsg = (BaseXYZZMessage<BaseXYZZObject>)method.invoke(controller, msg.message, stream, msg.returnAddress, msg.returnPort);
             msg.message = returnedMsg;
-            //Save returned msg
-            messageHistory.set(msg.message.getUuId(), msg); //FIXME: booking successful msg needs to be stored, but facility avail should not be cached
+            //Save returned msg for At Most Once Messages
+            if (returnedMsg.shouldCache()){
+                messageHistory.set(msg.message.getUuId(), msg);
+            }
+
             sendMessage(msg, 0);
         } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
-            //TODO : NO METHOD ERROR + METHOD INVOCATION ERROR
+            BaseXYZZMessage<ErrorMessageResponse> errorMessage = new BaseXYZZMessage<>();
+            errorMessage.setUuId(msg.message.getUuId());
+            errorMessage.setType(XYZZMessageType.ERROR);
+            errorMessage.setMethodName(msg.message.getMethodName());
+            errorMessage.setData(new ErrorMessageResponse(e.getMessage()));
+            msg.message = errorMessage;
+            sendMessage(msg, 0);
         }
         return msg;
     }

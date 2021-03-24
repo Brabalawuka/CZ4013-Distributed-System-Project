@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
+import java.util.Random;
 
 public abstract class BaseUdpClient {
 
@@ -30,9 +31,12 @@ public abstract class BaseUdpClient {
     protected void sendMessage(BaseUdpMsg message){
 
         DatagramPacket replyPacket = new DatagramPacket(message.data, message.data.length, message.returnAddress, message.returnPort);
+        Random random = new Random();
 
         try {
-            //TODO simulate omission failure
+            //Simulate Transmission Packet Loss
+            if (random.nextInt(10) > 8)
+                return;
             socket.send(replyPacket);
         } catch (IOException e) {
             e.printStackTrace();

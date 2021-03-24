@@ -10,7 +10,7 @@ public class Data extends TimerTask{
     private static final int NUMBER_OF_MINUTE_IN_A_WEEK = 60 * 24 * 7;
 
 
-    public static Map<String, Boolean> facilityList = new HashMap<>(){{
+    public static volatile Map<String, Boolean> facilityList = new HashMap<>(){{
         put("Tutorial Room 1", true);
         put("Tutorial Room 2", true);
         put("Tutorial Room 3", true);
@@ -20,13 +20,15 @@ public class Data extends TimerTask{
         put("Tutorial Room 7", true);
     }};
 
-    public static Map<String, Booking> bookingList = new HashMap<>();
+    public static volatile Map<String, Booking> bookingList = new HashMap<>();
 
     /*
     The facility Availibity is coded using a bit set with length of total minutes in a week
      */
-    public static Map<String, BitSet> facilityAvailibity = new HashMap<>();
+    public static volatile Map<String, BitSet> facilityAvailibity = new HashMap<>();
+
     static {
+        updatedayNameToIdxOffset();
         facilityList.keySet().forEach(facilityName -> {
             facilityAvailibity.put(facilityName, new BitSet(NUMBER_OF_MINUTE_IN_A_WEEK));
         });
@@ -42,10 +44,8 @@ public class Data extends TimerTask{
         add("Sun");
     }};
 
-    public static Map<String, Integer> dayNameToIdxOffset = new HashMap<>();
-    static {
-        updatedayNameToIdxOffset();
-    }
+    public static volatile Map<String, Integer> dayNameToIdxOffset = new HashMap<>();
+
 
     private static void updateFacilityAvailibity() {
         // TODO to be tested
@@ -75,7 +75,7 @@ public class Data extends TimerTask{
 
     @Override
     public void run() {
-        // FIXME this could possibly happen at the same time when they user is trying to access availability
+
         System.out.println("Updating Time Slots...");
         updateFacilityAvailibity();
         updatedayNameToIdxOffset();
