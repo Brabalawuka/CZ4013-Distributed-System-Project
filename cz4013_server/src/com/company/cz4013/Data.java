@@ -3,8 +3,9 @@ package com.company.cz4013;
 import java.util.BitSet;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.TimerTask;
 
-public class Data {
+public class Data extends TimerTask{
 
     private static final int NUMBER_OF_MINUTE_IN_A_WEEK = 60 * 24 * 7;
 
@@ -33,5 +34,18 @@ public class Data {
         put("Tutorial Room 7", new BitSet(NUMBER_OF_MINUTE_IN_A_WEEK));
     }};
 
+    private void updateFacilityAvailibity(){
+        Data.facilityAvailibity.forEach((key,value) ->
+                Data.facilityAvailibity.put(key, value.get(60 * 24, Math.max(60 * 24, value.length()))));
+    }
 
+    @Override
+    public void run() {
+        // FIXME this could possibly happen at the same time when they user is trying to access availability
+        System.out.println("Updating Time Slots...");
+        this.updateFacilityAvailibity();
+        System.out.println("Finished Updating Time Slots!");
+
+    }
 }
+

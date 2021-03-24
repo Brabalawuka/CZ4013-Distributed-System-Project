@@ -59,7 +59,6 @@ public class MainUDPServer extends BaseUdpClient {
             return storedMessage;
         }
 
-
         //TODO: HANDLE MESSAGE HISTORY
 
         try {

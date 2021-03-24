@@ -5,21 +5,15 @@ import com.company.cz4013.base.dto.XYZZFieldAnnotation;
 
 import java.util.List;
 
-public class FacilityList extends BaseXYZZObject {
+public class FacilityNamelistResponse extends BaseXYZZObject {
 
     @XYZZFieldAnnotation(order = 1)
-    public int testingInt;
-
-    @XYZZFieldAnnotation(order = 2)
     public List<String> facilityList;
 
-    public FacilityList(){}
+    public FacilityNamelistResponse(){}
 
-    public FacilityList(int testingInt, List<String> facilityList) {
-        this.testingInt = testingInt;
+    public FacilityNamelistResponse(List<String> facilityList) {
         this.facilityList = facilityList;
     }
-
-
 
 }

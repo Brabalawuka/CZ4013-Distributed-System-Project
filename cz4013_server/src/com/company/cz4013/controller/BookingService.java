@@ -1,12 +1,11 @@
 package com.company.cz4013.controller;
 
-import com.company.cz4013.base.dto.BaseXYZZMessage;
 import com.company.cz4013.base.dto.BaseXYZZObject;
-import com.company.cz4013.base.event.BaseListener;
-import com.company.cz4013.base.event.BasePublisher;
 import com.company.cz4013.dto.FacilityAvailabilityQuery;
+import com.company.cz4013.dto.FacilityNamelistResponse;
+import com.company.cz4013.Data;
 
-import java.util.Optional;
+import java.util.ArrayList;
 
 public class BookingService {
 
@@ -22,5 +21,8 @@ public class BookingService {
 
     }
 
+    public BaseXYZZObject getFacilityNameList() {
+        return new FacilityNamelistResponse(new ArrayList<>(Data.facilityList.keySet()));
+    }
 
 }

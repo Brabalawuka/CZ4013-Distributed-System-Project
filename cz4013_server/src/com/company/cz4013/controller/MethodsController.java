@@ -23,7 +23,7 @@ public class MethodsController extends BasePublisher {
 
     public static HashMap<String, String> methodHashMap = new HashMap<>(){{
         put("FACILITY_AVAIL_CHECKING", "checkFacilityAvailability");
-
+        put("FACILITY_NAMELIST_CHECKING", "checkFacilityNameList");
     }};
 
 
@@ -42,6 +42,25 @@ public class MethodsController extends BasePublisher {
             returnMsg.setType(XYZZMessageType.ERROR);
             returnMsg.setData(new ErrorMessageResponse(
                    e.getMessage()
+            ));
+            e.printStackTrace();
+        }
+        return returnMsg;
+
+    }
+
+    public BaseXYZZMessage<BaseXYZZObject> checkFacilityNameList(BaseXYZZMessage<FacilityAvailabilityQuery> msg, ByteArrayInputStream stream){
+
+        BaseXYZZMessage returnMsg = new BaseXYZZMessage<>();
+        returnMsg.setUuId(msg.getUuId());
+//        returnMsg.setMethodName(msg.getMethodName());
+        try {
+            returnMsg.setType(XYZZMessageType.REPLY);
+            returnMsg.setData(bookingService.getFacilityNameList());
+        } catch (Exception e) {
+            returnMsg.setType(XYZZMessageType.ERROR);
+            returnMsg.setData(new ErrorMessageResponse(
+                    e.getMessage()
             ));
             e.printStackTrace();
         }

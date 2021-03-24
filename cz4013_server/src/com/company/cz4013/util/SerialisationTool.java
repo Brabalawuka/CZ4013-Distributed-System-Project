@@ -9,6 +9,7 @@ import com.company.cz4013.exception.SerialisationError;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.lang.reflect.Field;
+import java.lang.reflect.ParameterizedType;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.charset.StandardCharsets;
@@ -72,14 +73,12 @@ public class SerialisationTool {
         byte[] uuid = new byte[36];
         stream.write(message.getUuId().toString().getBytes(), 0, 36);
 
-        //Write MethodName
-        stream.write(message.getMethodName().length());
-        stream.write(message.getMethodName().getBytes());
-
         //WriteData
         if(message.getData() == null){
             throw new SerialisationError("No XYZZObject detected: " + message.getUuId() + message.getMethodName());
         }
+
+        // FIXME: does not handel error message
         serialiseObjectTostream(stream, message.getData());
         return stream;
     }
@@ -108,8 +107,8 @@ public class SerialisationTool {
 
 
     public static <T extends BaseXYZZObject> void serialiseObjectTostream(ByteArrayOutputStream stream, T encodeObject) throws SerialisationError {
-
-        List<Field> fields = BaseXYZZObject.getOrderedField(encodeObject.getClass().getFields());
+        // If use getFields, length 0. But by using getDeclaredFields, some originally private attribute might be sent as well
+        List<Field> fields = BaseXYZZObject.getOrderedField(encodeObject.getClass().getDeclaredFields());
 
         //Interpret Every
         for (Field field : fields) {
@@ -169,8 +168,8 @@ public class SerialisationTool {
                 throw new SerialisationError("Wrong MessageType: " + fieldTypeInt);
             case 0:
                 int intVal = field.getInt(object);
-                //stream.write(ByteBuffer.allocate(4).order(ByteOrder.LITTLE_ENDIAN).putInt(intVal).array());
-                stream.write(intVal);
+                stream.write(ByteBuffer.allocate(4).order(ByteOrder.LITTLE_ENDIAN).putInt(intVal).array());
+//                stream.write(intVal);
                 return stream;
             case 1:
                 float floatVal = field.getFloat(object);
@@ -192,28 +191,31 @@ public class SerialisationTool {
                 return stream;
             case 4:
                 //Get list type
-                Class c = field.getType().getComponentType();
+                ParameterizedType stringListType = (ParameterizedType) field.getGenericType();
+                Class c = (Class) stringListType.getActualTypeArguments()[0];
                 //Get list length
                 int length = ((Collection)field.get(object)).size();
                 //get list type -> int
                 //TODO: notsure it will get correct type or not
                 int listType = typeToIntMap.getOrDefault(c, -1);
+                //write inner type
+                stream.write(listType);
                 //write list length
-                stream.write(length);
+                stream.write(ByteBuffer.allocate(4).order(ByteOrder.LITTLE_ENDIAN).putInt(length).array());
                 for (Object o : ((Collection) field.get(object))) {
                     switch (listType){
                         //Wrong List Type
                         case -1:
                             throw new SerialisationError("Wrong MessageType: Array Component type error: " + listType);
                         case 0:
-                            stream.write((Integer)o);
+                            stream.write(ByteBuffer.allocate(4).order(ByteOrder.LITTLE_ENDIAN).putInt((Integer) o).array());
                             break;
                         case 1:
                             stream.write(ByteBuffer.allocate(4).order(ByteOrder.LITTLE_ENDIAN).putFloat((Float) o).array());
                             break;
                         case 2:
-                            byte[] objectBytes =( (String)o).getBytes();
-                            stream.write(objectBytes.length);
+                            byte[] objectBytes =((String)o).getBytes();
+                            stream.write(ByteBuffer.allocate(4).order(ByteOrder.LITTLE_ENDIAN).putInt(objectBytes.length).array());
                             stream.write(objectBytes);
                             break;
                         case 3:
