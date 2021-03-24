@@ -6,7 +6,7 @@ import com.company.cz4013.base.dto.BaseXYZZObject;
 
 import javax.swing.text.html.Option;
 import java.util.Optional;
-
+@Deprecated
 public abstract class BaseListener {
 
     public BaseListener(BasePublisher publisher){

@@ -23,4 +23,23 @@ public enum XYZZMessageType {
         }
         throw new DeserialisationError(String.format("Unrecognised Error type: %d", x));
     }
+
+
+    public static int toInteger(XYZZMessageType x) {
+        switch(x) {
+            case CALL:
+                return 0;
+            case REPLY:
+                return 1;
+            case NOTIFY:
+                return 2;
+            case ERROR:
+                return 3;
+        }
+        return 3;
+    }
+
+
+
+
 }

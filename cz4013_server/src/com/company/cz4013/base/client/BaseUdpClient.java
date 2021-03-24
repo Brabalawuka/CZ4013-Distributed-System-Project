@@ -38,7 +38,6 @@ public abstract class BaseUdpClient {
         } catch (IOException e) {
             e.printStackTrace();
         }
-
     }
 
 

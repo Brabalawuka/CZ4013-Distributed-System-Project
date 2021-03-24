@@ -1,8 +1,10 @@
 package com.company.cz4013.base.dto;
 
+import java.util.UUID;
+
 public class BaseXYZZMessage<T extends BaseXYZZObject> {
 
-    private String uuId;
+    private UUID uuId;
     private XYZZMessageType type;
 
     public void setMethodName(String methodName) {
@@ -17,11 +19,14 @@ public class BaseXYZZMessage<T extends BaseXYZZObject> {
 
     private T data;
 
-    public String getUuId() {
+    public UUID getUuId() {
         return uuId;
     }
 
     public void setUuId(String uuId) {
+        this.uuId = UUID.fromString(uuId);
+    }
+    public void setUuId(UUID uuId) {
         this.uuId = uuId;
     }
 

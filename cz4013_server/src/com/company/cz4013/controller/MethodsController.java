@@ -15,6 +15,12 @@ import java.util.HashMap;
 
 public class MethodsController extends BasePublisher {
 
+    BookingService bookingService;
+
+    public MethodsController (){
+        bookingService = new BookingService();
+    }
+
     public static HashMap<String, String> methodHashMap = new HashMap<>(){{
         put("FACILITY_AVAIL_CHECKING", "checkFacilityAvailability");
 
@@ -31,15 +37,13 @@ public class MethodsController extends BasePublisher {
             msg.setData(query);
 
             returnMsg.setType(XYZZMessageType.REPLY);
-            notifySingleListeners(BookingService.class, msg).ifPresentOrElse(
-                    returnMsg::setData, () -> {}
-            );
-        } catch (DeserialisationError deserialisationError) {
+            bookingService.getFacilityAvailibity(msg.getData());
+        } catch (Exception e) {
             returnMsg.setType(XYZZMessageType.ERROR);
             returnMsg.setData(new ErrorMessageResponse(
-                   deserialisationError.getMessage()
+                   e.getMessage()
             ));
-            deserialisationError.printStackTrace();
+            e.printStackTrace();
         }
         return returnMsg;
 
