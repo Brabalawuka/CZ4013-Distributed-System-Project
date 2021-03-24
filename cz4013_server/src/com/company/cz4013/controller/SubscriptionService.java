@@ -1,7 +1,9 @@
 package com.company.cz4013.controller;
 
 import com.company.cz4013.Data;
+import com.company.cz4013.base.client.BaseUdpMsg;
 import com.company.cz4013.dto.FacilityAvailSubscriptionResponse;
+import com.company.cz4013.dto.FacilityAvailabilityQuery;
 import com.company.cz4013.dto.FacilitySubscriptionQuery;
 import com.company.cz4013.dto.FacilitySubscriptionRequest;
 
@@ -51,6 +53,7 @@ public class SubscriptionService {
     }
 
     public static void notify(String facilityName) {
+        FacilityAvailabilityQuery query = new FacilityAvailabilityQuery(facilityName, Data.dayKeywordsDisplaySequence);
         // TODO: notify client with OneWay msg and UUID as subscription ID
         // TODO: (optional) remove expired subscribers
     }

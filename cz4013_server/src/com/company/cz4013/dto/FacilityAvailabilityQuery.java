@@ -12,6 +12,13 @@ public class FacilityAvailabilityQuery extends BaseXYZZObject {
     @XYZZFieldAnnotation(order = 2)
     private List<String> days;
 
+    public FacilityAvailabilityQuery() {
+    }
+
+    public FacilityAvailabilityQuery(String facilityName, List<String> days) {
+        this.facilityName = facilityName;
+        this.days = days;
+    }
 
     public String getFacilityName() {
         return facilityName;

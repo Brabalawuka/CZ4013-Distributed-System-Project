@@ -32,6 +32,7 @@ public class Data extends TimerTask{
     /*
     The facility Availibity is coded using a bit set with length of total minutes in a week
      */
+    public static volatile List<String> dayKeywordsDisplaySequence = new ArrayList<>(dayKeywords);
     public static volatile Map<String, BitSet> facilityAvailibity = new HashMap<>();
     public static volatile Map<String, Integer> dayNameToIdxOffset = new HashMap<>();
     public static volatile Map<String, Booking> bookingList = new HashMap<>();
@@ -57,10 +58,16 @@ public class Data extends TimerTask{
         String day;
         for (i = 0; i < dayKeywords.size(); i++) {
             day= dayKeywords.get(i);
+            int newIdx;
             if (i < zeroOffSetPosition) {
-                dayNameToIdxOffset.put("Coming " + day, (i + 7 - zeroOffSetPosition) * 24 * 60);
+                newIdx = i + 7 - zeroOffSetPosition;
+                String keyName = "Coming " + day;
+                dayNameToIdxOffset.put(keyName, newIdx* 24 * 60);
+                dayKeywordsDisplaySequence.set(newIdx, keyName);
             } else {
-                dayNameToIdxOffset.put(day, (i - zeroOffSetPosition) * 24 * 60);
+                newIdx = i - zeroOffSetPosition;
+                dayNameToIdxOffset.put(day, newIdx * 24 * 60);
+                dayKeywordsDisplaySequence.set(newIdx, day);
             }
         }
     }
