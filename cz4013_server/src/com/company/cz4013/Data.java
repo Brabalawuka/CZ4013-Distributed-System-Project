@@ -1,7 +1,6 @@
 package com.company.cz4013;
 
-import com.company.cz4013.controller.SubscriptionService;
-import com.company.cz4013.model.Booking;
+import com.company.cz4013.dto.model.Booking;
 
 import java.text.SimpleDateFormat;
 import java.util.*;

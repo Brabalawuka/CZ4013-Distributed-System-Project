@@ -1,4 +1,6 @@
-package com.company.cz4013.model;
+package com.company.cz4013.dto.model;
+
+import java.util.UUID;
 
 public class Booking {
     private String bookingID;
@@ -10,6 +12,15 @@ public class Booking {
 
     public Booking(String bookingID, String facilityName, String startDay, String startTime, String endDay, String endTime) {
         this.bookingID = bookingID;
+        this.facilityName = facilityName;
+        this.startDay = startDay;
+        this.startTime = startTime;
+        this.endDay = endDay;
+        this.endTime = endTime;
+    }
+
+    public Booking(String facilityName, String startDay, String startTime, String endDay, String endTime) {
+        this.bookingID = UUID.randomUUID().toString();
         this.facilityName = facilityName;
         this.startDay = startDay;
         this.startTime = startTime;

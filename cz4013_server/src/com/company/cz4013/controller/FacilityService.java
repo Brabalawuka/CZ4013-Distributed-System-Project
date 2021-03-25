@@ -4,24 +4,13 @@ import com.company.cz4013.dto.query.FacilityAvailabilityQuery;
 import com.company.cz4013.dto.response.FacilityAvailabilityResponse;
 import com.company.cz4013.dto.response.FacilityNamelistResponse;
 import com.company.cz4013.Data;
+import com.company.cz4013.util.TimePtrOffsetConverter;
 
 import java.util.*;
 
 public class FacilityService {
 
     public FacilityService() {
-    }
-
-    private String ptrOffsetToTime(int ptr) {
-        int h = ptr / 60;
-        int m = ptr % 60;
-
-        return String.format("%02d:%02d", h, m);
-    }
-
-    private Integer timeToPtrOffset(String time) {
-        String[] splitedTime = time.split(":");
-        return Integer.parseInt(splitedTime[0]) * 60 + Integer.parseInt(splitedTime[1]);
     }
 
     public FacilityAvailabilityResponse getFacilityAvailibity(FacilityAvailabilityQuery query) throws Exception {
@@ -45,7 +34,8 @@ public class FacilityService {
                 while (!rawAvailability.get(ptr) && ptr < offset + 60 * 24) {
                     ptr ++;
                 }
-                availIntervalList.add(ptrOffsetToTime(start_ptr - offset) + "-" + ptrOffsetToTime(ptr - offset - 1));
+                availIntervalList.add(TimePtrOffsetConverter.ptrOffsetToTime(start_ptr - offset) + "-" +
+                        TimePtrOffsetConverter.ptrOffsetToTime(ptr - offset - 1));
             }
 
             availability.add(String.join("|", availIntervalList));

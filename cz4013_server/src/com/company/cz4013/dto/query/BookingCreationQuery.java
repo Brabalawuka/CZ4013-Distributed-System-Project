@@ -1,10 +1,9 @@
-package com.company.cz4013.dto.response;
+package com.company.cz4013.dto.query;
 
 import com.company.cz4013.base.dto.BaseXYZZObject;
 import com.company.cz4013.base.dto.XYZZFieldAnnotation;
-import com.company.cz4013.dto.model.Booking;
 
-public class BookingInfoResponse extends BaseXYZZObject {
+public class BookingCreationQuery extends BaseXYZZObject {
 
     @XYZZFieldAnnotation(order = 1)
     private String facilityName;
@@ -17,14 +16,7 @@ public class BookingInfoResponse extends BaseXYZZObject {
     @XYZZFieldAnnotation(order = 5)
     private String endTime;
 
-    public BookingInfoResponse(){}
-
-    public BookingInfoResponse(Booking booking) {
-        this.facilityName = booking.getFacilityName();
-        this.startDay = booking.getStartDay();
-        this.startTime = booking.getStartTime();
-        this.endDay = booking.getEndDay();
-        this.endTime = booking.getEndTime();
+    public BookingCreationQuery() {
     }
 
     public String getFacilityName() {
