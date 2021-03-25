@@ -65,12 +65,81 @@ public class BookingService {
         }
 
         try {
-            // TODO delete old booking
-            // TODO create new booking
-            return null;
+            Integer originalStartPtr = Data.dayNameToIdxOffset.get(booking.getStartDay())
+                    + TimePtrOffsetConverter.timeToPtrOffset(booking.getStartTime());
+            Integer originalEndPtr = Data.dayNameToIdxOffset.get(booking.getEndDay())
+                    + TimePtrOffsetConverter.timeToPtrOffset(booking.getEndTime());
+
+            Integer newStartPrt;
+            Integer newEndPrt;
+
+            if (query.getPostpone()) {
+                newStartPrt = originalStartPtr + query.getShiftTime();
+                newEndPrt = originalEndPtr + query.getShiftTime();
+            } else {
+                newStartPrt = originalStartPtr - query.getShiftTime();
+                newEndPrt = originalEndPtr - query.getShiftTime();
+            }
+
+            // TODO: this allows users to book 08:00 - 10:00 at 09:00
+            if (newEndPrt > Data.getNumberOfMinuteInAWeek() || newStartPrt < 0) {
+                throw new Exception("Bookings Should Be Within Seven Days From Now");
+            }
+
+            BitSet record = Data.facilityAvailability.get(booking.getFacilityName());
+
+            if (query.getPostpone()) {
+                Integer overlapping = originalEndPtr - newStartPrt;
+                if (overlapping >= 0) {
+                    BitSet duration = record.get(originalEndPtr + 1, newEndPrt + 1);
+                    int occupied = duration.cardinality();
+
+                    if (occupied > 0) {
+                        throw new Exception("Facility Not Fully Available During The New Requested Period");
+                    } else {
+                        record.clear(originalStartPtr, newStartPrt);
+                        record.set(originalEndPtr + 1, newEndPrt + 1);
+                    }
+                } else {
+                    eraseOldAndSetNewBooking(originalStartPtr, originalEndPtr, newStartPrt, newEndPrt, record);
+                }
+            } else {
+                Integer overlapping = newEndPrt - originalStartPtr;
+                if (overlapping >= 0) {
+                    BitSet duration = record.get(newStartPrt, originalStartPtr);
+                    int occupied = duration.cardinality();
+
+                    if (occupied > 0) {
+                        throw new Exception("Facility Not Fully Available During The New Requested Period");
+                    } else {
+                        record.clear(newEndPrt + 1, originalEndPtr + 1);
+                        record.set(newStartPrt, originalStartPtr);
+                    }
+                } else {
+                    eraseOldAndSetNewBooking(originalStartPtr, originalEndPtr, newStartPrt, newEndPrt, record);
+                }
+            }
+            booking.setStartDay(Data.dayKeywordsDisplaySequence.get(newStartPrt / 1440));
+            booking.setEndDay(Data.dayKeywordsDisplaySequence.get(newEndPrt / 1440));
+            booking.setStartTime(TimePtrOffsetConverter.ptrOffsetToTime(newStartPrt - Data.dayNameToIdxOffset.get(booking.getStartDay())));
+            booking.setEndTime(TimePtrOffsetConverter.ptrOffsetToTime(newEndPrt - Data.dayNameToIdxOffset.get(booking.getEndDay())));
+
+            SubscriptionService.notify(booking.getFacilityName());
+            return new BookingInfoResponse(booking);
         } catch (Exception e) {
-            // TODO recover old booking
             throw new Exception("Booking Changes Failed: " + e.getMessage());
+        }
+    }
+
+    private void eraseOldAndSetNewBooking(Integer originalStartPtr, Integer originalEndPtr, Integer newStartPrt, Integer newEndPrt, BitSet record) throws Exception {
+        BitSet duration = record.get(newStartPrt, newEndPrt + 1);
+        int occupied = duration.cardinality();
+
+        if (occupied > 0) {
+            throw new Exception("Facility Not Fully Available During The New Requested Period");
+        } else {
+            record.clear(originalStartPtr, originalEndPtr + 1);
+            record.set(newStartPrt, newEndPrt + 1);
         }
     }
 

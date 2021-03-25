@@ -9,7 +9,12 @@ import java.util.regex.Pattern;
 
 public class Data extends TimerTask{
     private static final Calendar calender = Calendar.getInstance();
+
     private static final int NUMBER_OF_MINUTE_IN_A_WEEK = 60 * 24 * 7;
+
+    public static int getNumberOfMinuteInAWeek() {
+        return NUMBER_OF_MINUTE_IN_A_WEEK;
+    }
 
     public static volatile Map<String, Boolean> facilityList = new HashMap<>(){{
         put("Tutorial Room 1", true);

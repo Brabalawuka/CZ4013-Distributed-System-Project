@@ -2,23 +2,22 @@ package com.company.cz4013.dto.query;
 
 import com.company.cz4013.base.dto.BaseXYZZObject;
 import com.company.cz4013.base.dto.XYZZFieldAnnotation;
-import com.company.cz4013.dto.model.Booking;
 
 public class BookingEditingQuery extends BaseXYZZObject {
 
     @XYZZFieldAnnotation(order = 1)
     private String bookingId;
     @XYZZFieldAnnotation(order = 2)
-    private Booking forward;
+    private Boolean postpone;
     @XYZZFieldAnnotation(order = 3)
     private int shiftTime;
 
     public BookingEditingQuery() {
     }
 
-    public BookingEditingQuery(String bookingId, Booking forward, int shiftTime) {
+    public BookingEditingQuery(String bookingId, Boolean postpone, int shiftTime) {
         this.bookingId = bookingId;
-        this.forward = forward;
+        this.postpone = postpone;
         this.shiftTime = shiftTime;
     }
 
@@ -30,12 +29,12 @@ public class BookingEditingQuery extends BaseXYZZObject {
         this.bookingId = bookingId;
     }
 
-    public Booking getForward() {
-        return forward;
+    public Boolean getPostpone() {
+        return postpone;
     }
 
-    public void setForward(Booking forward) {
-        this.forward = forward;
+    public void setPostpone(Boolean postpone) {
+        this.postpone = postpone;
     }
 
     public int getShiftTime() {

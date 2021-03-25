@@ -3,10 +3,7 @@ package com.company.cz4013.controller;
 import com.company.cz4013.base.client.BaseUdpMsg;
 import com.company.cz4013.base.dto.XYZZMessageType;
 import com.company.cz4013.base.event.BasePublisher;
-import com.company.cz4013.dto.query.BookingCreationQuery;
-import com.company.cz4013.dto.query.BookingInfoQuery;
-import com.company.cz4013.dto.query.FacilityAvailabilityQuery;
-import com.company.cz4013.dto.query.FacilitySubscriptionQuery;
+import com.company.cz4013.dto.query.*;
 import com.company.cz4013.dto.response.ErrorMessageResponse;
 import com.company.cz4013.dto.response.FacilityAvailSubscriptionResponse;
 import com.company.cz4013.util.SerialisationTool;
@@ -32,6 +29,7 @@ public class MethodsController extends BasePublisher {
         put("FACILITY_AVAIL_CHECKING_SUBSCRIPTION", "subscribeToFacilityAvailability");
         put("FACILITY_BOOKING_CHECKING", "checkBookingInfo");
         put("FACILITY_BOOKING", "createNewBooking");
+        put("FACILITY_BOOKING_AMENDMENT", "editCurrentBooking");
     }};
 
 
@@ -104,6 +102,22 @@ public class MethodsController extends BasePublisher {
         try {
             BookingCreationQuery query = SerialisationTool.deserialiseToObject(stream, new BookingCreationQuery());
             msg.message = msg.message.copyToNewMessage(bookingService.creatBooking(query), XYZZMessageType.REPLY, true);
+        } catch (Exception e) {
+            msg.message = msg.message.copyToNewMessage(new ErrorMessageResponse(
+                    e.getMessage()
+            ), XYZZMessageType.ERROR, false);
+            e.printStackTrace();
+        }
+
+        return msg;
+
+    }
+
+    public BaseUdpMsg editCurrentBooking(BaseUdpMsg msg, ByteArrayInputStream stream){
+
+        try {
+            BookingEditingQuery query = SerialisationTool.deserialiseToObject(stream, new BookingEditingQuery());
+            msg.message = msg.message.copyToNewMessage(bookingService.editBooking(query), XYZZMessageType.REPLY, true);
         } catch (Exception e) {
             msg.message = msg.message.copyToNewMessage(new ErrorMessageResponse(
                     e.getMessage()
