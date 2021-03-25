@@ -16,7 +16,6 @@ public class Main {
 
     public static void main(String[] args) {
 
-
         try {
             Timer t = new Timer();
             Data data = new Data();
@@ -38,7 +37,5 @@ public class Main {
             e.printStackTrace();
         }
 
-
-        // write your code here
     }
 }

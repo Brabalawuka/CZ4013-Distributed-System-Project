@@ -19,6 +19,14 @@ public class BookingCreationQuery extends BaseXYZZObject {
     public BookingCreationQuery() {
     }
 
+    public BookingCreationQuery(String facilityName, String startDay, String startTime, String endDay, String endTime) {
+        this.facilityName = facilityName;
+        this.startDay = startDay;
+        this.startTime = startTime;
+        this.endDay = endDay;
+        this.endTime = endTime;
+    }
+
     public String getFacilityName() {
         return facilityName;
     }

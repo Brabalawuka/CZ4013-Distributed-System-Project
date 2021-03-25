@@ -17,6 +17,11 @@ public class SubscriptionService {
 
 
     private static final Map<String, ArrayList<Subscription>> subscription = new HashMap<>();
+    static {
+        Data.facilityList.forEach((key, value) -> {
+            subscription.put(key, new ArrayList<>());
+        });
+    }
 
     private static class Subscription{
         public String subscriptionID;
@@ -55,6 +60,7 @@ public class SubscriptionService {
     }
 
     public static void notify(String facilityName) {
+
         try {
             FacilityAvailabilityQuery query = new FacilityAvailabilityQuery(facilityName, Data.dayKeywordsDisplaySequence);
             FacilityAvailabilityResponse message = new FacilityService().getFacilityAvailibity(query);

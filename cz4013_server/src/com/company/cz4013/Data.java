@@ -1,9 +1,11 @@
 package com.company.cz4013;
 
+import com.company.cz4013.controller.SubscriptionService;
 import com.company.cz4013.dto.model.Booking;
 
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.regex.Pattern;
 
 public class Data extends TimerTask{
     private static final Calendar calender = Calendar.getInstance();
@@ -51,8 +53,10 @@ public class Data extends TimerTask{
     }
 
     private static void updateFacilityAvailibity() {
-        // TODO: left shift all entries in facilityAvailability by 60 * 24 bits with padding 0s from right
-        // TODO: notify the users at the end of update
+        facilityAvailability.forEach(((key, value) -> {
+            facilityAvailability.put(key, value.get(60 * 24, 60 * 24 + NUMBER_OF_MINUTE_IN_A_WEEK));
+            SubscriptionService.notify(key);
+        }));
     }
 
     private static void updatedayNameToIdxOffset() {
@@ -81,19 +85,32 @@ public class Data extends TimerTask{
     }
 
     private static void updateBookingDay() {
-        // TODO update booking
-        // called on Monday, start of a new week: any bookings with end time not starting with 'coming becomes invalid
-        // all bookings with 'coming' days should drop the prefix
-        // all bookings with past days as start days and coming days as end days should still be valid,
-        // but the way of expressing start days should be changed
+        // TODO to be tested
+        Pattern pattern = Pattern.compile("^Coming", Pattern.CASE_INSENSITIVE);
+        for (String bookingId: bookingList.keySet()) {
+            Booking booking = bookingList.get(bookingId);
+            boolean isComing = pattern.matcher(booking.getStartDay()).find();
+            if (isComing) {
+                booking.setStartDay(booking.getStartDay().split(" ")[0]);
+            } else if (booking.getStartDay().length() == 3) {
+                // Not starting with coming; Now have expired
+                booking.setStartDay("Past " + booking.getStartDay());
+            }  // Do nothing to already expired bookings
+
+            isComing = pattern.matcher(booking.getEndDay()).find();
+            if (isComing) {
+                booking.setEndDay(booking.getEndDay().split(" ")[0]);
+            } else if (booking.getEndDay().length() == 3) {
+                booking.setEndDay("Past " + booking.getEndDay());
+            }
+        }
     }
 
     @Override
     public void run() {
-
         System.out.println("Updating Time Slots...");
-        updateFacilityAvailibity();
         updatedayNameToIdxOffset();
+        updateFacilityAvailibity();
         System.out.println("Finished Updating Time Slots!");
 
     }

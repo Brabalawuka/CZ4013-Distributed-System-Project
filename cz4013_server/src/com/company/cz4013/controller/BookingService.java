@@ -3,6 +3,7 @@ package com.company.cz4013.controller;
 import com.company.cz4013.Data;
 import com.company.cz4013.dto.model.Booking;
 import com.company.cz4013.dto.query.BookingCreationQuery;
+import com.company.cz4013.dto.query.BookingEditingQuery;
 import com.company.cz4013.dto.query.BookingInfoQuery;
 import com.company.cz4013.dto.response.BookingCreationResponse;
 import com.company.cz4013.dto.response.BookingInfoResponse;
@@ -49,6 +50,28 @@ public class BookingService {
         SubscriptionService.notify(query.getFacilityName());
 
         return new BookingCreationResponse(booking.getBookingID());
+    }
+
+    public BookingInfoResponse editBooking(BookingEditingQuery query) throws Exception {
+        if (!Data.bookingList.containsKey(query.getBookingId())) {
+            throw new Exception("No Booking Found With ID " + query.getBookingId());
+        }
+
+        Booking booking = Data.bookingList.get(query.getBookingId());
+
+        if (!(Data.dayNameToIdxOffset.containsKey(booking.getStartDay()) &&
+                Data.dayNameToIdxOffset.containsKey(booking.getEndDay()))) {
+            throw new Exception("No Changes On Expired/Effected Booking Allowed");
+        }
+
+        try {
+            // TODO delete old booking
+            // TODO create new booking
+            return null;
+        } catch (Exception e) {
+            // TODO recover old booking
+            throw new Exception("Booking Changes Failed: " + e.getMessage());
+        }
     }
 
 }
