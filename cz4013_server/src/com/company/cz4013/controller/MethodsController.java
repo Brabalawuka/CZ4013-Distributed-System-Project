@@ -3,6 +3,7 @@ package com.company.cz4013.controller;
 import com.company.cz4013.base.client.BaseUdpMsg;
 import com.company.cz4013.base.dto.XYZZMessageType;
 import com.company.cz4013.base.event.BasePublisher;
+import com.company.cz4013.dto.query.BookingInfoQuery;
 import com.company.cz4013.dto.query.FacilityAvailabilityQuery;
 import com.company.cz4013.dto.query.FacilitySubscriptionQuery;
 import com.company.cz4013.dto.response.ErrorMessageResponse;
@@ -14,11 +15,12 @@ import java.util.HashMap;
 
 public class MethodsController extends BasePublisher {
 
+    private BookingService bookingService;
     private FacilityService facilityService;
     private SubscriptionService subscriptionService;
 
     public MethodsController (){
-
+        bookingService = new BookingService();
         facilityService = new FacilityService();
         subscriptionService = new SubscriptionService();
     }
@@ -27,6 +29,7 @@ public class MethodsController extends BasePublisher {
         put("FACILITY_AVAIL_CHECKING", "checkFacilityAvailability");
         put("FACILITY_NAMELIST_CHECKING", "checkFacilityNameList");
         put("FACILITY_AVAIL_CHECKING_SUBSCRIPTION", "subscribeToFacilityAvailability");
+        put("FACILITY_BOOKING_CHECKING", "checkBookingInfo");
     }};
 
 
@@ -76,4 +79,21 @@ public class MethodsController extends BasePublisher {
         return msg;
 
     }
+
+    public BaseUdpMsg checkBookingInfo(BaseUdpMsg msg, ByteArrayInputStream stream){
+
+        try {
+            BookingInfoQuery query = SerialisationTool.deserialiseToObject(stream, new BookingInfoQuery());
+            msg.message = msg.message.copyToNewMessage(bookingService.getBookingInfo(query), XYZZMessageType.REPLY, false);
+        } catch (Exception e) {
+            msg.message = msg.message.copyToNewMessage(new ErrorMessageResponse(
+                    e.getMessage()
+            ), XYZZMessageType.ERROR, false);
+            e.printStackTrace();
+        }
+
+        return msg;
+
+    }
+
 }
