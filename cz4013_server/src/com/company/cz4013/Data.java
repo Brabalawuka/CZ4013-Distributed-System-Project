@@ -1,5 +1,6 @@
 package com.company.cz4013;
 
+import com.company.cz4013.controller.SubscriptionService;
 import com.company.cz4013.model.Booking;
 
 import java.text.SimpleDateFormat;
@@ -33,21 +34,26 @@ public class Data extends TimerTask{
     The facility Availibity is coded using a bit set with length of total minutes in a week
      */
     public static volatile List<String> dayKeywordsDisplaySequence = new ArrayList<>(dayKeywords);
-    public static volatile Map<String, BitSet> facilityAvailibity = new HashMap<>();
+    public static volatile Map<String, BitSet> facilityAvailability = new HashMap<>();
     public static volatile Map<String, Integer> dayNameToIdxOffset = new HashMap<>();
     public static volatile Map<String, Booking> bookingList = new HashMap<>();
 
     static {
         updatedayNameToIdxOffset();
         facilityList.keySet().forEach(facilityName -> {
-            facilityAvailibity.put(facilityName, new BitSet(NUMBER_OF_MINUTE_IN_A_WEEK));
+            facilityAvailability.put(facilityName, new BitSet(NUMBER_OF_MINUTE_IN_A_WEEK));
         });
+    }
+    
+    public static void editFacilityAvailabilityEntry(String facilityName) {
+        // TODO: used at every booking, book changing and day switch
+        SubscriptionService.notify(facilityName);
     }
 
     private static void updateFacilityAvailibity() {
         // TODO to be tested
-        facilityAvailibity.forEach((key,value) ->
-                facilityAvailibity.put(key, value.get(60 * 24, Math.max(60 * 24, value.length()))));
+        facilityAvailability.forEach((key, value) ->
+                facilityAvailability.put(key, value.get(60 * 24, Math.max(60 * 24, value.length()))));
     }
 
     private static void updatedayNameToIdxOffset() {

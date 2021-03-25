@@ -12,6 +12,8 @@ public class Main {
 
     static final int SERVER_PORT = 22222;
 
+    public static MainUDPServer mainUDPServer;
+
     public static void main(String[] args) {
 
 
@@ -30,7 +32,7 @@ public class Main {
 
             t.schedule(data, midnightTonight, 86400000);
 
-            MainUDPServer mainUDPServer = new MainUDPServer(new DatagramSocket(SERVER_PORT));
+            mainUDPServer = new MainUDPServer(new DatagramSocket(SERVER_PORT));
             mainUDPServer.listen();
         } catch (SocketException e) {
             e.printStackTrace();

@@ -1,6 +1,5 @@
 package com.company.cz4013.controller;
 
-import com.company.cz4013.base.dto.BaseXYZZObject;
 import com.company.cz4013.dto.FacilityAvailabilityQuery;
 import com.company.cz4013.dto.FacilityAvailabilityResponse;
 import com.company.cz4013.dto.FacilityNamelistResponse;
@@ -27,7 +26,7 @@ public class BookingService {
         ArrayList<String> availability = new ArrayList<>();
         for (String day: query.getDays()) {
             Integer offset = Data.dayNameToIdxOffset.get(day);
-            BitSet rawAvailability = Data.facilityAvailibity.get(query.getFacilityName());
+            BitSet rawAvailability = Data.facilityAvailability.get(query.getFacilityName());
 
             // TODO parse rawAvailability to the desired format
             ArrayList<String> availIntervalList = new ArrayList<>();

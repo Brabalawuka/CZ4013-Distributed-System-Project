@@ -48,12 +48,12 @@ public class MainUDPServer extends BaseUdpClient {
             errorMessage.setMethodName("NO Method Interpreted");
             errorMessage.setData(new ErrorMessageResponse(deserialisationError.getMessage()));
             msg.message = errorMessage;
-            sendMessage(msg, 0);
+            sendMessage(msg);
         }
         //Check for cached value in case of repetitive message
         BaseUdpMsg storedMessage = messageHistory.get(msg.message.getUuId());
         if(storedMessage != null){
-            sendMessage(storedMessage, 0);
+            sendMessage(storedMessage);
             return storedMessage;
         }
 
@@ -65,7 +65,7 @@ public class MainUDPServer extends BaseUdpClient {
                 messageHistory.set(msg.message.getUuId(), msg);
             }
 
-            sendMessage(msg, 0);
+            sendMessage(msg);
         } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
             BaseXYZZMessage<ErrorMessageResponse> errorMessage = new BaseXYZZMessage<>();
             errorMessage.setUuId(msg.message.getUuId());
@@ -73,7 +73,7 @@ public class MainUDPServer extends BaseUdpClient {
             errorMessage.setMethodName(msg.message.getMethodName());
             errorMessage.setData(new ErrorMessageResponse(e.getMessage()));
             msg.message = errorMessage;
-            sendMessage(msg, 0);
+            sendMessage(msg);
         }
         return msg;
     }
@@ -86,9 +86,8 @@ public class MainUDPServer extends BaseUdpClient {
     }
 
 
-
-    protected void sendMessage(BaseUdpMsg message, int retryTime) {
-
+    @Deprecated
+    public void sendMessage(BaseUdpMsg message, int retryTime) {
         try {
             ByteArrayOutputStream stream = SerialisationTool.serialiseToMsg(message.message);
             message.data = stream.toByteArray();
@@ -108,6 +107,14 @@ public class MainUDPServer extends BaseUdpClient {
         }
     }
 
-
+    public void sendMessage(BaseUdpMsg message) {
+        try {
+            ByteArrayOutputStream stream = SerialisationTool.serialiseToMsg(message.message);
+            message.data = stream.toByteArray();
+            super.sendMessage(message);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 
 }

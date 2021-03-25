@@ -1,12 +1,13 @@
 package com.company.cz4013.controller;
 
 import com.company.cz4013.Data;
+import com.company.cz4013.Main;
 import com.company.cz4013.base.client.BaseUdpMsg;
-import com.company.cz4013.dto.FacilityAvailSubscriptionResponse;
-import com.company.cz4013.dto.FacilityAvailabilityQuery;
-import com.company.cz4013.dto.FacilitySubscriptionQuery;
-import com.company.cz4013.dto.FacilitySubscriptionRequest;
+import com.company.cz4013.base.dto.BaseXYZZMessage;
+import com.company.cz4013.base.dto.XYZZMessageType;
+import com.company.cz4013.dto.*;
 
+import java.lang.reflect.Method;
 import java.net.InetAddress;
 import java.util.*;
 
@@ -53,8 +54,27 @@ public class SubscriptionService {
     }
 
     public static void notify(String facilityName) {
-        FacilityAvailabilityQuery query = new FacilityAvailabilityQuery(facilityName, Data.dayKeywordsDisplaySequence);
-        // TODO: notify client with OneWay msg and UUID as subscription ID
-        // TODO: (optional) remove expired subscribers
+        try {
+            FacilityAvailabilityQuery query = new FacilityAvailabilityQuery(facilityName, Data.dayKeywordsDisplaySequence);
+            FacilityAvailabilityResponse message = new BookingService().getFacilityAvailibity(query);
+            List<Subscription> expiredSubscription = new ArrayList<>();
+            for (Subscription s: subscription.get(facilityName)) {
+                if (s.subscriptionEndTime >= new Date().getTime()) {
+                    BaseUdpMsg msg = new BaseUdpMsg(s.address, s.port, null);
+                    BaseXYZZMessage<FacilityAvailabilityResponse> baseXYZZMessage = new BaseXYZZMessage<>();
+                    baseXYZZMessage.setUuId(s.subscriptionID);
+                    baseXYZZMessage.setData(message);
+                    baseXYZZMessage.setType(XYZZMessageType.NOTIFY);
+                    msg.message = baseXYZZMessage;
+                    Main.mainUDPServer.sendMessage(msg);
+                } else {
+                    expiredSubscription.add(s);
+                }
+            }
+            subscription.get(facilityName).removeAll(expiredSubscription);
+        } catch (Exception e) {
+            e.printStackTrace();
+            System.out.println("Notification Failed...");
+        }
     }
 }
