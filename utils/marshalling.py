@@ -104,7 +104,7 @@ def unmarshall(data: bytes) -> Union[ReplyMessage, OneWayMessage, ExceptionMessa
     request_id = data[ptr:ptr + 36].decode('ascii')
     ptr += 36
     if msg_type_id == 3:
-        error_message = data[ptr:].decode('ascii')
+        error_message = data[ptr+5:].decode('ascii')
         return ExceptionMessage(request_id=request_id, error_msg=error_message)
     elif msg_type_id == 1:
         return ReplyMessage(request_id=request_id, data=parse_data(data, ptr))
