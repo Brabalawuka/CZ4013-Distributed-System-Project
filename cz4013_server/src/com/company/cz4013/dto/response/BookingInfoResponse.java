@@ -1,28 +1,32 @@
-package com.company.cz4013.model;
+package com.company.cz4013.dto.response;
 
-public class Booking {
-    private String bookingID;
+import com.company.cz4013.base.dto.BaseXYZZObject;
+import com.company.cz4013.base.dto.XYZZFieldAnnotation;
+import com.company.cz4013.model.Booking;
+
+import java.util.List;
+
+public class BookingInfoResponse extends BaseXYZZObject {
+
+    @XYZZFieldAnnotation(order = 1)
     private String facilityName;
+    @XYZZFieldAnnotation(order = 2)
     private String startDay;
+    @XYZZFieldAnnotation(order = 3)
     private String startTime;
+    @XYZZFieldAnnotation(order = 4)
     private String endDay;
+    @XYZZFieldAnnotation(order = 5)
     private String endTime;
 
-    public Booking(String bookingID, String facilityName, String startDay, String startTime, String endDay, String endTime) {
-        this.bookingID = bookingID;
-        this.facilityName = facilityName;
-        this.startDay = startDay;
-        this.startTime = startTime;
-        this.endDay = endDay;
-        this.endTime = endTime;
-    }
+    public BookingInfoResponse(){}
 
-    public String getBookingID() {
-        return bookingID;
-    }
-
-    public void setBookingID(String bookingID) {
-        this.bookingID = bookingID;
+    public BookingInfoResponse(Booking booking) {
+        this.facilityName = booking.getFacilityName();
+        this.startDay = booking.getStartDay();
+        this.startTime = booking.getStartTime();
+        this.endDay = booking.getEndDay();
+        this.endTime = booking.getEndTime();
     }
 
     public String getFacilityName() {
@@ -64,5 +68,4 @@ public class Booking {
     public void setEndTime(String endTime) {
         this.endTime = endTime;
     }
-
 }

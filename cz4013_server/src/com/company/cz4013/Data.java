@@ -47,13 +47,13 @@ public class Data extends TimerTask{
     
     public static void editFacilityAvailabilityEntry(String facilityName) {
         // TODO: used at every booking, book changing and day switch
-        SubscriptionService.notify(facilityName);
+        // TODO: notify the users at the end of update
+        // SubscriptionService.notify(facilityName);
     }
 
     private static void updateFacilityAvailibity() {
-        // TODO to be tested
-        facilityAvailability.forEach((key, value) ->
-                facilityAvailability.put(key, value.get(60 * 24, Math.max(60 * 24, value.length()))));
+        // TODO: left shift all entries in facilityAvailability by 60 * 24 bits with padding 0s from right
+        // TODO: notify the users at the end of update
     }
 
     private static void updatedayNameToIdxOffset() {
@@ -76,10 +76,17 @@ public class Data extends TimerTask{
                 dayKeywordsDisplaySequence.set(newIdx, day);
             }
         }
+        if (zeroOffSetPosition == 0) {
+            updateBookingDay();
+        }
     }
 
     private static void updateBookingDay() {
-        // TODO update booking i.e. delete out-dated booking and Coming XXX -> XXX on every monday
+        // TODO update booking
+        // called on Monday, start of a new week: any bookings with end time not starting with 'coming becomes invalid
+        // all bookings with 'coming' days should drop the prefix
+        // all bookings with past days as start days and coming days as end days should still be valid,
+        // but the way of expressing start days should be changed
     }
 
     @Override
@@ -88,7 +95,6 @@ public class Data extends TimerTask{
         System.out.println("Updating Time Slots...");
         updateFacilityAvailibity();
         updatedayNameToIdxOffset();
-        updateBookingDay();
         System.out.println("Finished Updating Time Slots!");
 
     }

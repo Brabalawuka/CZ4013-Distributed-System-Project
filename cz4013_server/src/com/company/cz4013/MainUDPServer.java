@@ -3,10 +3,9 @@ package com.company.cz4013;
 import com.company.cz4013.base.client.BaseUdpClient;
 import com.company.cz4013.base.client.BaseUdpMsg;
 import com.company.cz4013.base.dto.BaseXYZZMessage;
-import com.company.cz4013.base.dto.BaseXYZZObject;
 import com.company.cz4013.base.dto.XYZZMessageType;
 import com.company.cz4013.controller.MethodsController;
-import com.company.cz4013.dto.ErrorMessageResponse;
+import com.company.cz4013.dto.response.ErrorMessageResponse;
 import com.company.cz4013.util.LRUCache;
 import com.company.cz4013.util.SerialisationTool;
 
@@ -15,7 +14,6 @@ import java.io.ByteArrayOutputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.DatagramSocket;
-import java.net.InetAddress;
 import java.util.UUID;
 
 public class MainUDPServer extends BaseUdpClient {
