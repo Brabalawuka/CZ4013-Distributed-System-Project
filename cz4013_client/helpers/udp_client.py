@@ -42,15 +42,15 @@ class UDPClientSocket:
                         end = time()
 
                         if addr == cls.serverAddressPort:
-                            stated_check_sum = struct.unpack('<I', data[0:4])[0]
-                            if verify_check_sum(stated_check_sum, data[4:]):
+                            stated_code = struct.unpack('<I', data[0:4])[0]
+                            if verify_validation_code(stated_code, data[4:]):
                                 reply_message = unmarshall(data)
                                 if reply_message.request_id == request_id:
                                     return reply_message
                                 else:
                                     print_warning('Unexpected Message From Server Detected! Discarding...')
                             else:
-                                print_warning('CheckSum Failed! Corrupted Message Detected! Discarding...')
+                                print_warning('Validation Failed! Corrupted Message Detected! Discarding...')
                         else:
                             print_warning(f'Unexpected External Message From {addr} Detected! Discarding...')
 
@@ -78,15 +78,15 @@ class UDPClientSocket:
                 end = time()
 
                 if addr == cls.serverAddressPort:
-                    stated_check_sum = struct.unpack('<I', data[0:4])[0]
-                    if verify_check_sum(stated_check_sum, data[4:]):
+                    stated_code = struct.unpack('<I', data[0:4])[0]
+                    if verify_validation_code(stated_code, data[4:]):
                         reply_message = unmarshall(data[4:])
                         if reply_message.request_id == subscription_id:
                             call_back_function(reply_message)
                         else:
                             print_warning('Unexpected Message From Server Detected! Discarding...')
                     else:
-                        print_warning("CheckSum Failed! Corrupted Message Detected! Discarding...")
+                        print_warning("Validation Failed! Corrupted Message Detected! Discarding...")
                 else:
                     print_warning(f'Unexpected External Message From {addr} Detected! Discarding...')
 
