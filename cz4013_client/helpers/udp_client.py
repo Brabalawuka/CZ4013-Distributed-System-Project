@@ -44,13 +44,13 @@ class UDPClientSocket:
                         if addr == cls.serverAddressPort:
                             stated_check_sum = struct.unpack('<I', data[0:4])[0]
                             if verify_check_sum(stated_check_sum, data[4:]):
-                                reply_message = unmarshall(data)
+                                reply_message = unmarshall(data[4:])
                                 if reply_message.request_id == request_id:
                                     return reply_message
                                 else:
                                     print_warning('Unexpected Message From Server Detected! Discarding...')
                             else:
-                                print_warning(f'Unexpected External Message From {addr} Detected! Discarding...')
+                                print_warning("\nCheckSum Failed! Corrupted Message Detected")
 
                         else:
                             print_warning(f'Unexpected External Message From {addr} Detected! Discarding...')

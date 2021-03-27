@@ -44,8 +44,9 @@ public class MainUDPServer extends BaseUdpClient {
         //carryout checksum verify content
         byte[] checkSum = Arrays.copyOfRange(msg.data, 0, 4);
         long checkSumUnsigned =  ByteBuffer.wrap(checkSum).order(ByteOrder.LITTLE_ENDIAN).getInt() & 0xFFFFFFFFL;
-        byte[] data =  Arrays.copyOfRange(msg.data, 4, msg.data.length-1);
+        byte[] data =  Arrays.copyOfRange(msg.data, 4, msg.data.length);
         if (!verifyCheckSum(checkSumUnsigned, data)){
+            System.out.println("CheckSum Failed: Received CheckSum:" + checkSumUnsigned + "Decoded CheckSum: " + verifyCheckSum(checkSumUnsigned, data));
             BaseXYZZMessage<ErrorMessageResponse> errorMessage = new BaseXYZZMessage<ErrorMessageResponse>();
             errorMessage.setUuId(UUID.randomUUID());
             errorMessage.setType(XYZZMessageType.ERROR);
@@ -72,6 +73,7 @@ public class MainUDPServer extends BaseUdpClient {
         //Check for cached value in case of repetitive message
         BaseUdpMsg storedMessage = messageHistory.get(msg.message.getUuId());
         if(storedMessage != null){
+            System.out.println("Duplicated Message Received: " + msg.message.getUuId());
             sendMessage(storedMessage);
             return storedMessage;
         }
@@ -113,8 +115,8 @@ public class MainUDPServer extends BaseUdpClient {
             long checkSum = createCheckSum(payload);
             byte[] data = new byte[4 + payload.length];
             byte[] checkSumBytes = new byte[8];
-            ByteBuffer.wrap(checkSumBytes).putLong(checkSum);
-            System.arraycopy(checkSumBytes, 4, data, 0, 4);
+            ByteBuffer.wrap(checkSumBytes).order(ByteOrder.LITTLE_ENDIAN).putLong(checkSum);
+            System.arraycopy(checkSumBytes, 0, data, 0, 4);
             System.arraycopy(payload,0, data,4, payload.length);
             message.data = data;
             super.sendMessage(message);
@@ -124,11 +126,16 @@ public class MainUDPServer extends BaseUdpClient {
     }
 
     private boolean verifyCheckSum(long checkSum, byte[] content){
+//        System.out.println("CheckSum receivced: " + checkSum);
+//        System.out.println("CheckSum verified: : " + AdlerCheckSum.checkSum(content));
+
         return checkSum == AdlerCheckSum.checkSum(content);
     }
 
     private long createCheckSum(byte[] content){
-       return AdlerCheckSum.checkSum(content);
+//        System.out.println("CheckSum created: " + AdlerCheckSum.checkSum(content));
+        return AdlerCheckSum.checkSum(content);
+
     }
 
 

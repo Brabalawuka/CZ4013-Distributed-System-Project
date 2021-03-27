@@ -10,7 +10,7 @@ public class AdlerCheckSum {
         Checksum checksumEngine = new Adler32();
         checksumEngine.update(input, 0, input.length);
         long checksum = checksumEngine.getValue();
-        System.out.println(checksum);
+        //System.out.println(checksum);
         return checksum;
     }
 }
