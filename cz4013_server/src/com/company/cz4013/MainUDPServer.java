@@ -42,15 +42,15 @@ public class MainUDPServer extends BaseUdpClient {
     protected BaseUdpMsg receiveRequest() {
         BaseUdpMsg msg = super.receiveRequest();
         //carryout checksum verify content
-        byte[] checkSum = Arrays.copyOfRange(msg.data, 0, 3);
+        byte[] checkSum = Arrays.copyOfRange(msg.data, 0, 4);
+        long checkSumUnsigned =  ByteBuffer.wrap(checkSum).order(ByteOrder.LITTLE_ENDIAN).getInt() & 0xFFFFFFFFL;
         byte[] data =  Arrays.copyOfRange(msg.data, 4, msg.data.length-1);
-        int checkSumInt = ByteBuffer.wrap(checkSum).order(ByteOrder.LITTLE_ENDIAN).getInt();
-        if (!verifyCheckSum(checkSumInt, data)){
+        if (!verifyCheckSum(checkSumUnsigned, data)){
             BaseXYZZMessage<ErrorMessageResponse> errorMessage = new BaseXYZZMessage<ErrorMessageResponse>();
             errorMessage.setUuId(UUID.randomUUID());
             errorMessage.setType(XYZZMessageType.ERROR);
             errorMessage.setMethodName("NO Method Interpreted");
-            errorMessage.setData(new ErrorMessageResponse("Transmission CheckSum Failed:" + checkSumInt));
+            errorMessage.setData(new ErrorMessageResponse("Transmission CheckSum Failed:" + checkSumUnsigned));
             msg.message = errorMessage;
             sendMessage(msg);
             return msg;
@@ -110,9 +110,11 @@ public class MainUDPServer extends BaseUdpClient {
         try {
             ByteArrayOutputStream stream = SerialisationTool.serialiseToMsg(message.message);
             byte[] payload = stream.toByteArray();
-            int checkSum = createCheckSum(payload);
+            long checkSum = createCheckSum(payload);
             byte[] data = new byte[4 + payload.length];
-            System.arraycopy(ByteBuffer.allocate(4).putInt(checkSum).array(), 0, data, 0, 4);
+            byte[] checkSumBytes = new byte[8];
+            ByteBuffer.wrap(checkSumBytes).putLong(checkSum);
+            System.arraycopy(checkSumBytes, 4, data, 0, 4);
             System.arraycopy(payload,0, data,4, payload.length);
             message.data = data;
             super.sendMessage(message);
@@ -121,11 +123,11 @@ public class MainUDPServer extends BaseUdpClient {
         }
     }
 
-    private boolean verifyCheckSum(int checkSum, byte[] content){
+    private boolean verifyCheckSum(long checkSum, byte[] content){
         return checkSum == AdlerCheckSum.checkSum(content);
     }
 
-    private int createCheckSum(byte[] content){
+    private long createCheckSum(byte[] content){
        return AdlerCheckSum.checkSum(content);
     }
 

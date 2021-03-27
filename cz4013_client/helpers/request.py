@@ -13,8 +13,8 @@ def request(service: ServiceType, *args, **kwargs) -> Union[ReplyMessage, OneWay
     msg = CallMessage(service=service, data=args)
     marshalled_msg = msg.marshall()
     check_sum = create_check_sum(marshalled_msg)
-    # print(struct.pack('<i', check_sum))
-    # marshalled_msg = struct.pack('<i', check_sum) + marshalled_msg
+    print(struct.pack('<I', check_sum))
+    marshalled_msg = struct.pack('<I', check_sum) + marshalled_msg
     reply_msg = UDPClientSocket.send_msg(msg=marshalled_msg, request_id=msg.request_id, **kwargs)
     return reply_msg
 
