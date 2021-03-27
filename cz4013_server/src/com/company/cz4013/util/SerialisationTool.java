@@ -177,7 +177,7 @@ public class SerialisationTool {
             case 2:
                 String strVal = (String) field.get(object);
                 byte[] strBytes = strVal.getBytes();
-                stream.write(strBytes.length);
+                stream.write(ByteBuffer.allocate(4).order(ByteOrder.LITTLE_ENDIAN).putInt(strBytes.length).array());
                 stream.write(strBytes);
                 return stream;
             case 3:

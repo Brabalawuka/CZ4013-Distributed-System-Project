@@ -1,4 +1,4 @@
-package com.company.cz4013.dto;
+package com.company.cz4013.dto.query;
 
 import com.company.cz4013.base.dto.BaseXYZZObject;
 import com.company.cz4013.base.dto.XYZZFieldAnnotation;

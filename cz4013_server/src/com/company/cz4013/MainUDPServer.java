@@ -3,11 +3,11 @@ package com.company.cz4013;
 import com.company.cz4013.base.client.BaseUdpClient;
 import com.company.cz4013.base.client.BaseUdpMsg;
 import com.company.cz4013.base.dto.BaseXYZZMessage;
-import com.company.cz4013.base.dto.BaseXYZZObject;
 import com.company.cz4013.base.dto.XYZZMessageType;
 import com.company.cz4013.controller.MethodsController;
 import com.company.cz4013.dto.ErrorMessageResponse;
 import com.company.cz4013.util.AdlerCheckSum;
+import com.company.cz4013.dto.response.ErrorMessageResponse;
 import com.company.cz4013.util.LRUCache;
 import com.company.cz4013.util.SerialisationTool;
 
@@ -67,26 +67,24 @@ public class MainUDPServer extends BaseUdpClient {
             errorMessage.setMethodName("NO Method Interpreted");
             errorMessage.setData(new ErrorMessageResponse(deserialisationError.getMessage()));
             msg.message = errorMessage;
-            sendMessage(msg, 0);
+            sendMessage(msg);
         }
         //Check for cached value in case of repetitive message
         BaseUdpMsg storedMessage = messageHistory.get(msg.message.getUuId());
         if(storedMessage != null){
-            sendMessage(storedMessage, 0);
+            sendMessage(storedMessage);
             return storedMessage;
         }
 
         try {
-            Method method = MethodsController.class.getDeclaredMethod(MethodsController.methodHashMap.get(msg.message.getMethodName()),BaseXYZZMessage.class,
-                    ByteArrayInputStream.class, InetAddress.class, Integer.class);
-            BaseXYZZMessage<BaseXYZZObject> returnedMsg = (BaseXYZZMessage<BaseXYZZObject>)method.invoke(controller, msg.message, stream, msg.returnAddress, msg.returnPort);
-            msg.message = returnedMsg;
+            Method method = MethodsController.class.getDeclaredMethod(MethodsController.methodHashMap.get(msg.message.getMethodName()),BaseUdpMsg.class, ByteArrayInputStream.class);
+            msg = (BaseUdpMsg) method.invoke(controller, msg, stream);
             //Save returned msg for At Most Once Messages
-            if (returnedMsg.shouldCache()){
+            if (msg.message.shouldCache()){
                 messageHistory.set(msg.message.getUuId(), msg);
             }
 
-            sendMessage(msg, 0);
+            sendMessage(msg);
         } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
             BaseXYZZMessage<ErrorMessageResponse> errorMessage = new BaseXYZZMessage<>();
             errorMessage.setUuId(msg.message.getUuId());
@@ -94,7 +92,7 @@ public class MainUDPServer extends BaseUdpClient {
             errorMessage.setMethodName(msg.message.getMethodName());
             errorMessage.setData(new ErrorMessageResponse(e.getMessage()));
             msg.message = errorMessage;
-            sendMessage(msg, 0);
+            sendMessage(msg);
         }
         return msg;
     }
@@ -107,9 +105,8 @@ public class MainUDPServer extends BaseUdpClient {
     }
 
 
-
-    protected void sendMessage(BaseUdpMsg message, int retryTime) {
-
+    @Deprecated
+    public void sendMessage(BaseUdpMsg message, int retryTime) {
         try {
             ByteArrayOutputStream stream = SerialisationTool.serialiseToMsg(message.message);
             byte[] payload = stream.toByteArray();
@@ -134,7 +131,15 @@ public class MainUDPServer extends BaseUdpClient {
         }
     }
 
-
+    public void sendMessage(BaseUdpMsg message) {
+        try {
+            ByteArrayOutputStream stream = SerialisationTool.serialiseToMsg(message.message);
+            message.data = stream.toByteArray();
+            super.sendMessage(message);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 
     private boolean verifyCheckSum(int checkSum, byte[] content){
         return checkSum == AdlerCheckSum.checkSum(content);

@@ -1,14 +1,20 @@
 package com.company.cz4013;
 
-import com.company.cz4013.model.Booking;
+import com.company.cz4013.controller.SubscriptionService;
+import com.company.cz4013.dto.model.Booking;
 
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.regex.Pattern;
 
 public class Data extends TimerTask{
     private static final Calendar calender = Calendar.getInstance();
+
     private static final int NUMBER_OF_MINUTE_IN_A_WEEK = 60 * 24 * 7;
 
+    public static int getNumberOfMinuteInAWeek() {
+        return NUMBER_OF_MINUTE_IN_A_WEEK;
+    }
 
     public static volatile Map<String, Boolean> facilityList = new HashMap<>(){{
         put("Tutorial Room 1", true);
@@ -20,20 +26,6 @@ public class Data extends TimerTask{
         put("Tutorial Room 7", true);
     }};
 
-    public static volatile Map<String, Booking> bookingList = new HashMap<>();
-
-    /*
-    The facility Availibity is coded using a bit set with length of total minutes in a week
-     */
-    public static volatile Map<String, BitSet> facilityAvailibity = new HashMap<>();
-
-    static {
-        updatedayNameToIdxOffset();
-        facilityList.keySet().forEach(facilityName -> {
-            facilityAvailibity.put(facilityName, new BitSet(NUMBER_OF_MINUTE_IN_A_WEEK));
-        });
-    }
-
     private static final List<String> dayKeywords = new ArrayList<>() {{
         add("Mon");
         add("Tue");
@@ -44,13 +36,32 @@ public class Data extends TimerTask{
         add("Sun");
     }};
 
+    /*
+    The facility Availibity is coded using a bit set with length of total minutes in a week
+     */
+    public static volatile List<String> dayKeywordsDisplaySequence = new ArrayList<>(dayKeywords);
+    public static volatile Map<String, BitSet> facilityAvailability = new HashMap<>();
     public static volatile Map<String, Integer> dayNameToIdxOffset = new HashMap<>();
+    public static volatile Map<String, Booking> bookingList = new HashMap<>();
 
+    static {
+        updatedayNameToIdxOffset();
+        facilityList.keySet().forEach(facilityName -> {
+            facilityAvailability.put(facilityName, new BitSet(NUMBER_OF_MINUTE_IN_A_WEEK));
+        });
+    }
+    
+    public static void editFacilityAvailabilityEntry(String facilityName) {
+        // TODO: used at every booking, book changing and day switch
+        // TODO: notify the users at the end of update
+        // SubscriptionService.notify(facilityName);
+    }
 
     private static void updateFacilityAvailibity() {
-        // TODO to be tested
-        facilityAvailibity.forEach((key,value) ->
-                facilityAvailibity.put(key, value.get(60 * 24, Math.max(60 * 24, value.length()))));
+        facilityAvailability.forEach(((key, value) -> {
+            facilityAvailability.put(key, value.get(60 * 24, 60 * 24 + NUMBER_OF_MINUTE_IN_A_WEEK));
+            SubscriptionService.notify(key);
+        }));
     }
 
     private static void updatedayNameToIdxOffset() {
@@ -61,25 +72,50 @@ public class Data extends TimerTask{
         String day;
         for (i = 0; i < dayKeywords.size(); i++) {
             day= dayKeywords.get(i);
+            int newIdx;
             if (i < zeroOffSetPosition) {
-                dayNameToIdxOffset.put("Coming " + day, (i + 7 - zeroOffSetPosition) * 24 * 60);
+                newIdx = i + 7 - zeroOffSetPosition;
+                String keyName = "Coming " + day;
+                dayNameToIdxOffset.put(keyName, newIdx* 24 * 60);
+                dayKeywordsDisplaySequence.set(newIdx, keyName);
             } else {
-                dayNameToIdxOffset.put(day, (i - zeroOffSetPosition) * 24 * 60);
+                newIdx = i - zeroOffSetPosition;
+                dayNameToIdxOffset.put(day, newIdx * 24 * 60);
+                dayKeywordsDisplaySequence.set(newIdx, day);
             }
+        }
+        if (zeroOffSetPosition == 0) {
+            updateBookingDay();
         }
     }
 
     private static void updateBookingDay() {
-        // TODO update booking i.e. delete out-dated booking and Coming XXX -> XXX on every monday
+        // TODO to be tested
+        Pattern pattern = Pattern.compile("^Coming", Pattern.CASE_INSENSITIVE);
+        for (String bookingId: bookingList.keySet()) {
+            Booking booking = bookingList.get(bookingId);
+            boolean isComing = pattern.matcher(booking.getStartDay()).find();
+            if (isComing) {
+                booking.setStartDay(booking.getStartDay().split(" ")[0]);
+            } else if (booking.getStartDay().length() == 3) {
+                // Not starting with coming; Now have expired
+                booking.setStartDay("Past " + booking.getStartDay());
+            }  // Do nothing to already expired bookings
+
+            isComing = pattern.matcher(booking.getEndDay()).find();
+            if (isComing) {
+                booking.setEndDay(booking.getEndDay().split(" ")[0]);
+            } else if (booking.getEndDay().length() == 3) {
+                booking.setEndDay("Past " + booking.getEndDay());
+            }
+        }
     }
 
     @Override
     public void run() {
-
         System.out.println("Updating Time Slots...");
-        updateFacilityAvailibity();
         updatedayNameToIdxOffset();
-        updateBookingDay();
+        updateFacilityAvailibity();
         System.out.println("Finished Updating Time Slots!");
 
     }

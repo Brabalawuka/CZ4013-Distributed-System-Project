@@ -63,6 +63,7 @@ public class BaseXYZZMessage<T extends BaseXYZZObject> {
         baseXYZZMessage.setMethodName(methodName);
         baseXYZZMessage.setData(object);
         baseXYZZMessage.setType(type);
+        baseXYZZMessage.setShouldCache(shouldCache);
         return baseXYZZMessage;
     }
 }

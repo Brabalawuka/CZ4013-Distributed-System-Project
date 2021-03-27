@@ -1,4 +1,4 @@
-package com.company.cz4013.dto;
+package com.company.cz4013.dto.query;
 
 import com.company.cz4013.base.dto.BaseXYZZObject;
 import com.company.cz4013.base.dto.XYZZFieldAnnotation;
@@ -12,6 +12,13 @@ public class FacilityAvailabilityQuery extends BaseXYZZObject {
     @XYZZFieldAnnotation(order = 2)
     private List<String> days;
 
+    public FacilityAvailabilityQuery() {
+    }
+
+    public FacilityAvailabilityQuery(String facilityName, List<String> days) {
+        this.facilityName = facilityName;
+        this.days = days;
+    }
 
     public String getFacilityName() {
         return facilityName;
