@@ -24,7 +24,7 @@ class UDPClientSocket:
     @classmethod
     def send_msg(cls, msg: bytes, request_id: str, wait_for_response: int = True, time_out: int = 5,
                  max_attempt: int = float('inf'), buffer_size: int = 1024,
-                 simulate_comm_omission_fail=True) -> Union[BaseMessage, None]:
+                 simulate_comm_omission_fail=True) -> Union[ReplyMessage, OneWayMessage, ExceptionMessage, None]:
         if wait_for_response:
             attempt = 0
             while attempt <= max_attempt:
@@ -42,11 +42,16 @@ class UDPClientSocket:
                         end = time()
 
                         if addr == cls.serverAddressPort:
-                            reply_message = unmarshall(data)
-                            if reply_message.request_id == request_id:
-                                return reply_message
+                            stated_check_sum = struct.unpack('<I', data[0:4])[0]
+                            if verify_check_sum(stated_check_sum, data[4:]):
+                                reply_message = unmarshall(data)
+                                if reply_message.request_id == request_id:
+                                    return reply_message
+                                else:
+                                    print_warning('Unexpected Message From Server Detected! Discarding...')
                             else:
-                                print_warning('Unexpected Message From Server Detected! Discarding...')
+                                print_warning(f'Unexpected External Message From {addr} Detected! Discarding...')
+
                         else:
                             print_warning(f'Unexpected External Message From {addr} Detected! Discarding...')
 
@@ -63,7 +68,8 @@ class UDPClientSocket:
             cls.UDPSocket.sendto(msg, cls.serverAddressPort)
 
     @classmethod
-    def listen_msg(cls, subscribe_time: int, subscription_id: int, call_back_function: Callable, buffer_size: int = 1024) -> None:
+    def listen_msg(cls, subscribe_time: int, subscription_id: int,
+                   call_back_function: Callable, buffer_size: int = 1024) -> None:
         end_time = time() + subscribe_time
         cls.UDPSocket.settimeout(subscribe_time)
 
@@ -73,16 +79,15 @@ class UDPClientSocket:
                 end = time()
 
                 if addr == cls.serverAddressPort:
-                    # check_sum = int.from_bytes(data[0:3], "big")
-                    # if not verify_check_sum(check_sum, data[4:]):
-                    #     print_warning("\nCheckSum Failed!")
-                    #     return
-                    # reply_message = unmarshall(data[4:])
-                    reply_message = unmarshall(data)
-                    if reply_message.request_id == subscription_id:
-                        call_back_function(reply_message)
+                    stated_check_sum = struct.unpack('<I', data[0:4])[0]
+                    if verify_check_sum(stated_check_sum, data[4:]):
+                        reply_message = unmarshall(data[4:])
+                        if reply_message.request_id == subscription_id:
+                            call_back_function(reply_message)
+                        else:
+                            print_warning('Unexpected Message From Server Detected! Discarding...')
                     else:
-                        print_warning('Unexpected Message From Server Detected! Discarding...')
+                        print_warning("\nCheckSum Failed! Corrupted Message Detected")
                 else:
                     print_warning(f'Unexpected External Message From {addr} Detected! Discarding...')
 
