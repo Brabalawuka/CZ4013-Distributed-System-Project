@@ -5,7 +5,6 @@ import com.company.cz4013.base.client.BaseUdpMsg;
 import com.company.cz4013.base.dto.BaseXYZZMessage;
 import com.company.cz4013.base.dto.XYZZMessageType;
 import com.company.cz4013.controller.MethodsController;
-import com.company.cz4013.dto.ErrorMessageResponse;
 import com.company.cz4013.util.AdlerCheckSum;
 import com.company.cz4013.dto.response.ErrorMessageResponse;
 import com.company.cz4013.util.LRUCache;
@@ -25,6 +24,7 @@ import java.util.UUID;
 public class MainUDPServer extends BaseUdpClient {
 
     public static boolean userInterrupt = false;
+
 
     private MethodsController controller;
     private final LRUCache<UUID, BaseUdpMsg> messageHistory = new LRUCache<>(50);
@@ -52,7 +52,7 @@ public class MainUDPServer extends BaseUdpClient {
             errorMessage.setMethodName("NO Method Interpreted");
             errorMessage.setData(new ErrorMessageResponse("Transmission CheckSum Failed:" + checkSumInt));
             msg.message = errorMessage;
-            sendMessage(msg, 0);
+            sendMessage(msg);
             return msg;
         }
 
@@ -105,8 +105,8 @@ public class MainUDPServer extends BaseUdpClient {
     }
 
 
-    @Deprecated
-    public void sendMessage(BaseUdpMsg message, int retryTime) {
+
+    public void sendMessage(BaseUdpMsg message) {
         try {
             ByteArrayOutputStream stream = SerialisationTool.serialiseToMsg(message.message);
             byte[] payload = stream.toByteArray();
@@ -115,26 +115,6 @@ public class MainUDPServer extends BaseUdpClient {
             System.arraycopy(ByteBuffer.allocate(4).putInt(checkSum).array(), 0, data, 0, 4);
             System.arraycopy(payload,0, data,4, payload.length);
             message.data = data;
-            super.sendMessage(message);
-        } catch (Exception e) {
-            if (retryTime >= 1){
-                e.printStackTrace();
-                return;
-            }
-            BaseXYZZMessage<ErrorMessageResponse> errorMessage = new BaseXYZZMessage<ErrorMessageResponse>();
-            errorMessage.setUuId(message.message.getUuId());
-            errorMessage.setType(XYZZMessageType.ERROR);
-            errorMessage.setMethodName(message.message.getMethodName());
-            errorMessage.setData(new ErrorMessageResponse(e.getMessage()));
-            message.message = errorMessage;
-            sendMessage(message, ++retryTime);
-        }
-    }
-
-    public void sendMessage(BaseUdpMsg message) {
-        try {
-            ByteArrayOutputStream stream = SerialisationTool.serialiseToMsg(message.message);
-            message.data = stream.toByteArray();
             super.sendMessage(message);
         } catch (Exception e) {
             e.printStackTrace();
