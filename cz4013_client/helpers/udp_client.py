@@ -50,8 +50,7 @@ class UDPClientSocket:
                                 else:
                                     print_warning('Unexpected Message From Server Detected! Discarding...')
                             else:
-                                print_warning(f'Unexpected External Message From {addr} Detected! Discarding...')
-
+                                print_warning('CheckSum Failed! Corrupted Message Detected! Discarding...')
                         else:
                             print_warning(f'Unexpected External Message From {addr} Detected! Discarding...')
 
@@ -87,7 +86,7 @@ class UDPClientSocket:
                         else:
                             print_warning('Unexpected Message From Server Detected! Discarding...')
                     else:
-                        print_warning("\nCheckSum Failed! Corrupted Message Detected")
+                        print_warning("CheckSum Failed! Corrupted Message Detected! Discarding...")
                 else:
                     print_warning(f'Unexpected External Message From {addr} Detected! Discarding...')
 
