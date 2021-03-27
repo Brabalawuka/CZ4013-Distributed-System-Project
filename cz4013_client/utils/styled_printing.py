@@ -67,7 +67,7 @@ def print_booking(booking_id: str, facility_name: str, start_day: str, start_tim
                   new_line_at_top: bool = True, new_line_at_end: bool = True) -> None:
     if new_line_at_top:
         print()
-    print_message(f'Booking Information For {inline_important_message_decorator(booking_id.upper())}')
+    print_message(f'Booking Information For {inline_important_message_decorator(booking_id)}')
     print_options([
         f'Facility Name: {facility_name}',
         f'Start Time: {start_day} {start_time}',

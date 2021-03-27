@@ -27,8 +27,8 @@ class FacilityBookingController(BaseController):
     def enter(self, *args, **kwargs) -> int:
         self.show_message()
         self.show_options()
-        facility_name = self.options[get_menu_option(max_choice=len(self.options),
-                                                     msg="Please Indicate the Target Facility by Number (e.g. 1)")]
+        facility_name = get_string_input(f'Please Indicate the Target Facility by Typing '
+                                         f'{inline_important_message_decorator("Full Name")}')
         current_day = datetime.today().weekday()
         day_list = self.day_list[current_day:] + [f'Coming {d}' for d in self.day_list[:current_day]]
         print_options(day_list, show_number=False)
@@ -46,9 +46,10 @@ class FacilityBookingController(BaseController):
         try:
             if not self._check_booking_interval(start_day, end_day, start_time, end_time):
                 raise Exception('Ending Time Cannot Be Prior To Starting Time!')
+            print_message("Booking...")
             book_id = self.book_facility(facility_name, start_day, end_day, start_time, end_time)
-            print_message(msg=f'Your Have Successfully Booked {facility_name} from {start_day} {start_time}'
-                              f'to {end_day} {end_time}!')
+            print_message(msg=f'\nYour Have Successfully Booked {facility_name} From {start_day} {start_time} '
+                              f'To {end_day} {end_time}!')
             print_message(f'Please Note Your Booking ID {inline_important_message_decorator(book_id)} For Later Use')
         except Exception as e:
             print_error(f'Booking Failed: {str(e)}')
@@ -77,12 +78,7 @@ class FacilityBookingController(BaseController):
 
     @staticmethod
     def book_facility(facility_name: str, start_day, end_day, start_time, end_time) -> str:
-        # TODO uncomment for connection to server
-        # reply_msg = request(ServiceType.FACILITY_BOOKING, facility_name, start_day, end_day, start_time, end_time)
-        # if reply_msg.msg_type == MessageType.EXCEPTION:
-        #     raise Exception(reply_msg.error_msg)
-        # return reply_msg.request_id
-
-        if facility_name == 'test error':
-            raise Exception('Reason to Fail')
-        return 'cdf8d93f'.upper()
+        reply_msg = request(ServiceType.FACILITY_BOOKING, facility_name, start_day, start_time, end_day, end_time)
+        if reply_msg.msg_type == MessageType.EXCEPTION:
+            raise Exception(reply_msg.error_msg)
+        return reply_msg.data[0]

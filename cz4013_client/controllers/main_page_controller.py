@@ -40,7 +40,6 @@ class MainPageController(BaseController):
 
     @staticmethod
     def retrieve_facility_name_list():
-        # TODO uncomment for connection to server
         try:
             reply_msg = request(service=ServiceType.FACILITY_NAMELIST_CHECKING)
             if reply_msg.msg_type == MessageType.REPLY:
@@ -50,8 +49,6 @@ class MainPageController(BaseController):
         except Exception as e:
             print_error(f"Server Unavailable: {str(e)}. Please Try Again Later.")
             sys.exit()
-
-        # return ['SRC Swimming Pool', 'North Hill Gym', 'SRC Tennis Court']
 
     @staticmethod
     def exit():

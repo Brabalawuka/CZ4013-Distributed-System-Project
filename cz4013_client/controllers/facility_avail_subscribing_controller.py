@@ -54,4 +54,4 @@ class FacilityAvailSubscribingController(FacilityAvailCheckingController):
             current_day = datetime.today().weekday()
             day_list = cls.day_list[current_day:] + [f'Coming {d}' for d in cls.day_list[:current_day]]
             print_timetable(days=day_list,
-                            avail_by_days=msg.data)
+                            avail_by_days=msg.data[0])
