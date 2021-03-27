@@ -7,6 +7,7 @@ import com.company.cz4013.base.dto.BaseXYZZObject;
 import com.company.cz4013.base.dto.XYZZMessageType;
 import com.company.cz4013.controller.MethodsController;
 import com.company.cz4013.dto.ErrorMessageResponse;
+import com.company.cz4013.util.AdlerCheckSum;
 import com.company.cz4013.util.LRUCache;
 import com.company.cz4013.util.SerialisationTool;
 
@@ -16,6 +17,9 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
+import java.util.Arrays;
 import java.util.UUID;
 
 public class MainUDPServer extends BaseUdpClient {
@@ -37,7 +41,22 @@ public class MainUDPServer extends BaseUdpClient {
     @Override
     protected BaseUdpMsg receiveRequest() {
         BaseUdpMsg msg = super.receiveRequest();
-        ByteArrayInputStream stream = new ByteArrayInputStream(msg.data);
+        //carryout checksum verify content
+        byte[] checkSum = Arrays.copyOfRange(msg.data, 0, 3);
+        byte[] data =  Arrays.copyOfRange(msg.data, 4, msg.data.length-1);
+        int checkSumInt = ByteBuffer.wrap(checkSum).order(ByteOrder.LITTLE_ENDIAN).getInt();
+        if (!verifyCheckSum(checkSumInt, data)){
+            BaseXYZZMessage<ErrorMessageResponse> errorMessage = new BaseXYZZMessage<ErrorMessageResponse>();
+            errorMessage.setUuId(UUID.randomUUID());
+            errorMessage.setType(XYZZMessageType.ERROR);
+            errorMessage.setMethodName("NO Method Interpreted");
+            errorMessage.setData(new ErrorMessageResponse("Transmission CheckSum Failed:" + checkSumInt));
+            msg.message = errorMessage;
+            sendMessage(msg, 0);
+            return msg;
+        }
+
+        ByteArrayInputStream stream = new ByteArrayInputStream(data);
         try {
             msg.message = SerialisationTool.deserialiseToMsg(stream);
         } catch (Exception deserialisationError) {
@@ -93,7 +112,12 @@ public class MainUDPServer extends BaseUdpClient {
 
         try {
             ByteArrayOutputStream stream = SerialisationTool.serialiseToMsg(message.message);
-            message.data = stream.toByteArray();
+            byte[] payload = stream.toByteArray();
+            int checkSum = createCheckSum(payload);
+            byte[] data = new byte[4 + payload.length];
+            System.arraycopy(ByteBuffer.allocate(4).putInt(checkSum).array(), 0, data, 0, 4);
+            System.arraycopy(payload,0, data,4, payload.length);
+            message.data = data;
             super.sendMessage(message);
         } catch (Exception e) {
             if (retryTime >= 1){
@@ -109,6 +133,18 @@ public class MainUDPServer extends BaseUdpClient {
             sendMessage(message, ++retryTime);
         }
     }
+
+
+
+    private boolean verifyCheckSum(int checkSum, byte[] content){
+        return checkSum == AdlerCheckSum.checkSum(content);
+    }
+
+    private int createCheckSum(byte[] content){
+       return AdlerCheckSum.checkSum(content);
+    }
+
+
 
 
 

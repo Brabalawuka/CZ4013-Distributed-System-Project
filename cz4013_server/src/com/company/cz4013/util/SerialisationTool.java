@@ -39,6 +39,7 @@ public class SerialisationTool {
 
         BaseXYZZMessage<?> msg = new BaseXYZZMessage<>();
 
+
         //Interpret Msg Type
         msg.setType(XYZZMessageType.fromInteger(stream.read()));
 
