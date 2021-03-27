@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
+import java.util.Arrays;
 import java.util.Random;
 
 public abstract class BaseUdpClient {
@@ -25,7 +26,8 @@ public abstract class BaseUdpClient {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        return new BaseUdpMsg(request.getAddress(), request.getPort(), request.getData());
+        byte[] payload = Arrays.copyOfRange(request.getData(), 0, request.getLength());
+        return new BaseUdpMsg(request.getAddress(), request.getPort(), payload);
     }
 
     protected void sendMessage(BaseUdpMsg message){

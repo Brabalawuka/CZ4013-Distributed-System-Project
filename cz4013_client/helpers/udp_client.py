@@ -42,9 +42,9 @@ class UDPClientSocket:
                         end = time()
 
                         if addr == cls.serverAddressPort:
-                            stated_code = struct.unpack('<I', data[0:4])[0]
-                            if verify_validation_code(stated_code, data[4:]):
-                                reply_message = unmarshall(data)
+                            stated_check_sum = struct.unpack('<I', data[0:4])[0]
+                            if verify_check_sum(stated_check_sum, data[4:]):
+                                reply_message = unmarshall(data[4:])
                                 if reply_message.request_id == request_id:
                                     return reply_message
                                 else:
