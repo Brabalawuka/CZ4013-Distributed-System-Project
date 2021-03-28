@@ -4,10 +4,12 @@ import com.company.cz4013.Data;
 import com.company.cz4013.dto.model.Booking;
 import com.company.cz4013.dto.query.BookingCreationQuery;
 import com.company.cz4013.dto.query.BookingEditingQuery;
+import com.company.cz4013.dto.query.BookingExtendingQuery;
 import com.company.cz4013.dto.query.BookingInfoQuery;
 import com.company.cz4013.dto.response.BookingCreationResponse;
 import com.company.cz4013.dto.response.BookingInfoResponse;
 import com.company.cz4013.util.TimePtrOffsetConverter;
+
 
 import java.util.BitSet;
 
@@ -53,12 +55,10 @@ public class BookingService {
     }
 
     public BookingInfoResponse editBooking(BookingEditingQuery query) throws Exception {
-        if (!Data.bookingList.containsKey(query.getBookingId())) {
+        Booking booking = Data.bookingList.getOrDefault(query.getBookingId(),null);
+        if(booking == null){
             throw new Exception("No Booking Found With ID " + query.getBookingId());
         }
-
-        Booking booking = Data.bookingList.get(query.getBookingId());
-
         if (!(Data.dayNameToIdxOffset.containsKey(booking.getStartDay()) &&
                 Data.dayNameToIdxOffset.containsKey(booking.getEndDay()))) {
             throw new Exception("No Changes On Expired/Effected Booking Allowed");
@@ -83,7 +83,7 @@ public class BookingService {
 
             // TODO: this allows users to book 08:00 - 10:00 at 09:00
             if (newEndPrt > Data.getNumberOfMinuteInAWeek() || newStartPrt < 0) {
-                throw new Exception("Bookings Should Be Within Seven Days From Now");
+                throw new Exception("Booking's StartTime and EndTime Should Be Within Seven Days From Now");
             }
 
             BitSet record = Data.facilityAvailability.get(booking.getFacilityName());
@@ -140,6 +140,50 @@ public class BookingService {
         } else {
             record.clear(originalStartPtr, originalEndPtr + 1);
             record.set(newStartPrt, newEndPrt + 1);
+        }
+    }
+
+    public BookingInfoResponse extendBooking(BookingExtendingQuery query) throws Exception {
+
+        Booking booking = Data.bookingList.getOrDefault(query.getBookingId(),null);
+        if(booking == null){
+            throw new Exception("No Booking Found With ID " + query.getBookingId());
+        }
+
+        if (!(Data.dayNameToIdxOffset.containsKey(booking.getStartDay()) &&
+                Data.dayNameToIdxOffset.containsKey(booking.getEndDay()))) {
+            throw new Exception("No Changes On Expired/Effected Booking Allowed");
+        }
+
+        try {
+            Integer originalStartPtr = Data.dayNameToIdxOffset.get(booking.getStartDay())
+                    + TimePtrOffsetConverter.timeToPtrOffset(booking.getStartTime());
+            Integer originalEndPtr = Data.dayNameToIdxOffset.get(booking.getEndDay())
+                    + TimePtrOffsetConverter.timeToPtrOffset(booking.getEndTime());
+
+            Integer newEndPrt = originalEndPtr + query.getExtendingTime();
+
+            if (newEndPrt > Data.getNumberOfMinuteInAWeek()) {
+                throw new Exception("Booking's StartTime and EndTime Should Be Within Seven Days From Now");
+            }
+
+            BitSet record = Data.facilityAvailability.get(booking.getFacilityName());
+            BitSet duration = record.get(originalEndPtr + 1, newEndPrt);
+            if (duration.cardinality() > 0) {
+                throw new Exception("Facility Not Fully Available During The New Requested Period");
+            } else {
+                record.set(originalStartPtr, newEndPrt);
+            }
+
+            booking.setStartDay(Data.dayKeywordsDisplaySequence.get(originalStartPtr / 1440));
+            booking.setEndDay(Data.dayKeywordsDisplaySequence.get(newEndPrt / 1440));
+            booking.setStartTime(TimePtrOffsetConverter.ptrOffsetToTime(originalStartPtr - Data.dayNameToIdxOffset.get(booking.getStartDay())));
+            booking.setEndTime(TimePtrOffsetConverter.ptrOffsetToTime(newEndPrt - Data.dayNameToIdxOffset.get(booking.getEndDay())));
+
+            SubscriptionService.notify(booking.getFacilityName());
+            return new BookingInfoResponse(booking);
+        } catch (Exception e) {
+            throw new Exception("Booking Changes Failed: " + e.getMessage());
         }
     }
 

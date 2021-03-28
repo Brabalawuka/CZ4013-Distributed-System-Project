@@ -14,9 +14,11 @@ class MessageType(Enum):
 class ServiceType(Enum):
     FACILITY_NAMELIST_CHECKING = 'FACILITY_NAMELIST_CHECKING'
     FACILITY_AVAIL_CHECKING = 'FACILITY_AVAIL_CHECKING'
+    FACILITY_AVAIL_CHECKING_MULTIPLE = 'FACILITY_AVAIL_CHECKING_MULTIPLE'
     FACILITY_BOOKING = 'FACILITY_BOOKING'
     FACILITY_BOOKING_CHECKING = 'FACILITY_BOOKING_CHECKING'
     FACILITY_BOOKING_AMENDMENT = 'FACILITY_BOOKING_AMENDMENT'
+    FACILITY_BOOKING_EXTEND = 'FACILITY_BOOKING_EXTEND'
     FACILITY_AVAIL_CHECKING_SUBSCRIPTION = 'FACILITY_AVAIL_CHECKING_SUBSCRIPTION'
 
 
@@ -92,9 +94,17 @@ class ExceptionMessage(BaseMessage):
 
 
 class OneWayMessage(ReplyMessage):
-    def __init__(self, request_id: str, data: list):
+    def __init__(self, service: ServiceType, request_id: str, data: list):
         super().__init__(request_id, data)
         self.msg_type = MessageType.ONEWAY
+        self.service = service
+
+    def marshall(self) -> bytearray:
+        msg_in_bytes = bytearray(self.msg_type.value)
+        msg_in_bytes += bytes(self.request_id.encode('ascii'))
+        msg_in_bytes += struct.pack('B', len(self.service.value))
+        msg_in_bytes += bytes(self.service.value.encode('ascii'))
+        return msg_in_bytes
 
 
 def unmarshall(data: bytes) -> Union[ReplyMessage, OneWayMessage, ExceptionMessage]:

@@ -12,8 +12,11 @@ import com.company.cz4013.dto.response.FacilityAvailabilityResponse;
 
 import java.net.InetAddress;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class SubscriptionService {
+
+    private static final Map<UUID, Thread> notificationMap = new ConcurrentHashMap<>();
 
 
     private static final Map<String, ArrayList<Subscription>> subscription = new HashMap<>();
@@ -53,10 +56,24 @@ public class SubscriptionService {
                 subscriptionId,
                 clientAddress,
                 clientPort,
-                new Date().getTime() + query.getSubscribeTime() * 1000
+                new Date().getTime() + query.getSubscribeTime() * 1000L
         ));
 
         return new FacilityAvailSubscriptionResponse(subscriptionId);
+    }
+
+    public void notificationAck(UUID ackUUID) {
+        System.out.println("Received Notification Acknowledgement: UUID: " + ackUUID.toString());
+        Thread thread = notificationMap.getOrDefault(ackUUID, null);
+        if (thread != null){
+            thread.interrupt();
+            try {
+                thread.join();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+        notificationMap.remove(ackUUID);
     }
 
     public static void notify(String facilityName) {
@@ -67,13 +84,17 @@ public class SubscriptionService {
             List<Subscription> expiredSubscription = new ArrayList<>();
             BaseXYZZMessage<FacilityAvailabilityResponse> baseXYZZMessage = new BaseXYZZMessage<>();
             baseXYZZMessage.setData(message);
-            baseXYZZMessage.setType(XYZZMessageType.NOTIFY);
+            baseXYZZMessage.setType(XYZZMessageType.REPLY);
+            baseXYZZMessage.setMethodName("");
             for (Subscription s: subscription.get(facilityName)) {
                 if (s.subscriptionEndTime >= new Date().getTime()) {
                     BaseUdpMsg msg = new BaseUdpMsg(s.address, s.port, null);
                     baseXYZZMessage.setUuId(s.subscriptionID);
                     msg.message = baseXYZZMessage;
-                    Main.mainUDPServer.sendMessage(msg);
+                    Runnable runnable = new NotificationRunnable(msg);
+                    Thread notification = new Thread(runnable);
+                    //notificationMap.put(msg.message.getUuId(),notification);
+                    notification.start();
                 } else {
                     expiredSubscription.add(s);
                 }
@@ -82,6 +103,32 @@ public class SubscriptionService {
         } catch (Exception e) {
             e.printStackTrace();
             System.out.println("Notification Failed...");
+        }
+    }
+
+
+    private static class NotificationRunnable implements Runnable{
+
+        BaseUdpMsg msg;
+
+        public NotificationRunnable(BaseUdpMsg msg){
+            this.msg = msg;
+        }
+
+        @Override
+        public void run() {
+            for (int i = 0; i < 5; i++) {
+                notificationMap.put(msg.message.getUuId(), Thread.currentThread());
+                System.out.println("Sending Notification Msg: " + msg.returnAddress);
+                Main.mainUDPServer.sendMessage(msg);
+                try {
+                    Thread.sleep(2000);
+                } catch (InterruptedException e) {
+                    return;
+                }
+            }
+            notificationMap.remove(msg.message.getUuId());
+            System.out.println("Failed To Notify Client: " + msg.returnAddress + ", after trying for 5 times");
         }
     }
 }

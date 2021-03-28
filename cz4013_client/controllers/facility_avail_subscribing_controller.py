@@ -55,3 +55,6 @@ class FacilityAvailSubscribingController(FacilityAvailCheckingController):
             day_list = cls.day_list[current_day:] + [f'Coming {d}' for d in cls.day_list[:current_day]]
             print_timetable(days=day_list,
                             avail_by_days=msg.data[0])
+
+        notify(service=ServiceType.FACILITY_AVAIL_CHECKING_SUBSCRIPTION, request_id=msg.request_id)
+

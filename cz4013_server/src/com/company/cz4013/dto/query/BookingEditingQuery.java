@@ -3,7 +3,9 @@ package com.company.cz4013.dto.query;
 import com.company.cz4013.base.dto.BaseXYZZObject;
 import com.company.cz4013.base.dto.XYZZFieldAnnotation;
 
-public class BookingEditingQuery extends BaseXYZZObject {
+import java.io.Serializable;
+
+public class BookingEditingQuery extends BaseXYZZObject implements Serializable {
 
     @XYZZFieldAnnotation(order = 1)
     private String bookingId;
@@ -23,6 +25,7 @@ public class BookingEditingQuery extends BaseXYZZObject {
 
     public String getBookingId() {
         return bookingId;
+
     }
 
     public void setBookingId(String bookingId) {

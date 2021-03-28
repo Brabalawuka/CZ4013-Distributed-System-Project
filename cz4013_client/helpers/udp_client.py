@@ -22,7 +22,7 @@ class UDPClientSocket:
     serverAddressPort = (SERVER_IP, SERVER_PORT)
 
     @classmethod
-    def send_msg(cls, msg: bytes, request_id: str, wait_for_response: int = True, time_out: int = 5,
+    def send_msg(cls, msg: bytes, request_id: str, wait_for_response: bool = True, time_out: int = 5,
                  max_attempt: int = float('inf'), buffer_size: int = 1024,
                  simulate_comm_omission_fail=True) -> Union[ReplyMessage, OneWayMessage, ExceptionMessage, None]:
         if wait_for_response:
@@ -34,6 +34,8 @@ class UDPClientSocket:
                     if not simulate_comm_omission_fail or\
                             simulate_comm_omission_fail and random.randint(0, 9) != 0:
                         cls.UDPSocket.sendto(msg, cls.serverAddressPort)
+                    else:
+                        print_warning("Simulated Packet Loss")
 
                     updated_time_out = time_out
                     while True:

@@ -10,20 +10,20 @@ import java.util.regex.Pattern;
 public class Data extends TimerTask{
     private static final Calendar calender = Calendar.getInstance();
 
-    private static final int NUMBER_OF_MINUTE_IN_A_WEEK = 60 * 24 * 7;
+    public static final int NUMBER_OF_MINUTE_IN_A_WEEK = 60 * 24 * 7;
 
     public static int getNumberOfMinuteInAWeek() {
         return NUMBER_OF_MINUTE_IN_A_WEEK;
     }
 
     public static volatile Map<String, Boolean> facilityList = new HashMap<>(){{
-        put("Tutorial Room 1", true);
-        put("Tutorial Room 2", true);
-        put("Tutorial Room 3", true);
-        put("Tutorial Room 4", true);
-        put("Tutorial Room 5", true);
-        put("Tutorial Room 6", true);
-        put("Tutorial Room 7", true);
+        put("Tut1", true);
+        put("Tut2", true);
+        put("Tut3", true);
+        put("Tut4", true);
+        put("LT1", true);
+        put("LT2", true);
+        put("LT3", true);
     }};
 
     private static final List<String> dayKeywords = new ArrayList<>() {{
