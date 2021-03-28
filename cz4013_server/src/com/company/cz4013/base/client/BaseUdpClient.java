@@ -35,7 +35,13 @@ public abstract class BaseUdpClient {
 
     protected void sendMessage(BaseUdpMsg message){
 
-        System.out.println("Sending Package: UUID = " + message.message.getUuId());
+        System.out.print("Sending Package: UUID = " + message.message.getUuId()
+                        + ", Method: " + message.message.getMethodName()
+                        + ", Type: " + message.message.getType()
+                        + ", IP: " + message.returnAddress
+                        + ", PORT: " + message.returnPort
+                        + " ------ "
+        );
         Random random = new Random();
         //Simulate Transmission Packet Loss
         if (random.nextInt(10) > 8){
@@ -44,9 +50,10 @@ public abstract class BaseUdpClient {
         }
         //Simulate Transmission Byte Error
         if (random.nextInt(20) > 18){
-            System.out.println("Transmission Error Simulated");
+            System.out.print("Transmission Error Simulated ----- ");
             message.data[7] = ((Integer)(Byte.toUnsignedInt(message.data[7]) + 1)).byteValue();
         }
+        System.out.println("Success");
         DatagramPacket replyPacket = new DatagramPacket(message.data, message.data.length, message.returnAddress, message.returnPort);
         try {
             socket.send(replyPacket);

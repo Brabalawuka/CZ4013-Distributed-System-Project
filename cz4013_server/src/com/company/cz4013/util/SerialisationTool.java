@@ -73,7 +73,8 @@ public class SerialisationTool {
 
         //WriteData
         if(message.getData() == null){
-            throw new SerialisationError("No XYZZObject detected: " + message.getUuId() + message.getMethodName());
+            return writer;
+            //throw new SerialisationError("No XYZZObject detected: " + message.getUuId() + message.getMethodName());
         }
 
         serialiseObjectToWriter(writer, message.getData());

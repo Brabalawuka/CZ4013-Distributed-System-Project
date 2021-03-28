@@ -87,6 +87,9 @@ public class MainUDPServer extends BaseUdpClient {
         try {
             Method method = MethodsController.class.getDeclaredMethod(MethodsController.methodHashMap.get(msg.message.getMethodName()),BaseUdpMsg.class, XYZZByteReader.class);
             msg = (BaseUdpMsg) method.invoke(controller, msg, reader);
+            if (msg == null){
+                return null;
+            }
             //Save returned msg for At Most Once Messages
             if (msg.message.shouldCache()){
                 messageHistory.set(msg.message.getUuId(), msg);

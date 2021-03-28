@@ -8,7 +8,6 @@ import com.company.cz4013.dto.response.ErrorMessageResponse;
 import com.company.cz4013.dto.response.FacilityAvailSubscriptionResponse;
 import com.company.cz4013.util.SerialisationTool;
 import com.company.cz4013.util.XYZZByteReader;
-import com.company.cz4013.util.XYZZByteWriter;
 
 import java.util.HashMap;
 
@@ -83,6 +82,10 @@ public class MethodsController extends BasePublisher {
     }
 
     public BaseUdpMsg subscribeToFacilityAvailability(BaseUdpMsg msg, XYZZByteReader reader){
+        if (msg.message.getType() == XYZZMessageType.NOTIFY){
+            subscriptionService.notificationAck(msg.message.getUuId());
+            return null;
+        }
 
         try {
             FacilitySubscriptionQuery query = SerialisationTool.deserialiseToObject(reader, new FacilitySubscriptionQuery());

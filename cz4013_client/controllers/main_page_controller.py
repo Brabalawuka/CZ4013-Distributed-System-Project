@@ -15,7 +15,7 @@ class MainPageController(BaseController):
     def options(self):
         return [
             "Check Single Facility Availability",
-            "Check Multiple Facilities Availability",
+            "Check Multiple Facilities Mutual Availability",
             "Book Facility",
             "Query/Edit Upcoming Bookings",
             "Monitor Facility Availability",

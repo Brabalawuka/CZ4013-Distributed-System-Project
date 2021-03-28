@@ -56,18 +56,22 @@ public class SubscriptionService {
                 subscriptionId,
                 clientAddress,
                 clientPort,
-                new Date().getTime() + query.getSubscribeTime() * 1000
+                new Date().getTime() + query.getSubscribeTime() * 1000L
         ));
 
         return new FacilityAvailSubscriptionResponse(subscriptionId);
     }
 
-    public void NotificationAck(UUID ackUUID) throws Exception {
-        System.out.println("Received Subscription Notification");
+    public void notificationAck(UUID ackUUID) {
+        System.out.println("Received Notification Acknowledgement: UUID: " + ackUUID.toString());
         Thread thread = notificationMap.getOrDefault(ackUUID, null);
         if (thread != null){
             thread.interrupt();
-            thread.join();
+            try {
+                thread.join();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
         }
         notificationMap.remove(ackUUID);
     }
@@ -80,7 +84,8 @@ public class SubscriptionService {
             List<Subscription> expiredSubscription = new ArrayList<>();
             BaseXYZZMessage<FacilityAvailabilityResponse> baseXYZZMessage = new BaseXYZZMessage<>();
             baseXYZZMessage.setData(message);
-            baseXYZZMessage.setType(XYZZMessageType.NOTIFY);
+            baseXYZZMessage.setType(XYZZMessageType.REPLY);
+            baseXYZZMessage.setMethodName("");
             for (Subscription s: subscription.get(facilityName)) {
                 if (s.subscriptionEndTime >= new Date().getTime()) {
                     BaseUdpMsg msg = new BaseUdpMsg(s.address, s.port, null);
@@ -88,7 +93,7 @@ public class SubscriptionService {
                     msg.message = baseXYZZMessage;
                     Runnable runnable = new NotificationRunnable(msg);
                     Thread notification = new Thread(runnable);
-                    notificationMap.put(msg.message.getUuId(),notification);
+                    //notificationMap.put(msg.message.getUuId(),notification);
                     notification.start();
                 } else {
                     expiredSubscription.add(s);
@@ -114,6 +119,7 @@ public class SubscriptionService {
         public void run() {
             for (int i = 0; i < 5; i++) {
                 notificationMap.put(msg.message.getUuId(), Thread.currentThread());
+                System.out.println("Sending Notification Msg: " + msg.returnAddress);
                 Main.mainUDPServer.sendMessage(msg);
                 try {
                     Thread.sleep(2000);
