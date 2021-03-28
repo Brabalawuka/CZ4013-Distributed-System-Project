@@ -12,11 +12,10 @@ public class XYZZByteWriter {
 
 
     //The buffer where data is stored.
-    protected byte buf[];
+    protected byte[] messageBuffer;
 
     //The number of valid bytes in the buffer.
     protected int count;
-
 
     //Default 64 bytes
     public XYZZByteWriter() {
@@ -26,32 +25,31 @@ public class XYZZByteWriter {
 
     public XYZZByteWriter(int size) {
         if (size < 0) {
-            throw new IllegalArgumentException("Negative initial size: "
-                    + size);
+            throw new IllegalArgumentException("Negative initial size: " + size);
         }
-        buf = new byte[size];
+        messageBuffer = new byte[size];
     }
 
     public synchronized void write(int b) {
         checkCapacity(count + 1);
-        buf[count] = (byte) b;
+        messageBuffer[count] = (byte) b;
         count += 1;
     }
 
-    public void write(byte b[]) throws IOException {
-        write(b, 0, b.length);
+    public void write(byte[] bytes) throws IOException {
+        write(bytes, 0, bytes.length);
     }
 
-    public synchronized void write(byte b[], int off, int len) {
-        Objects.checkFromIndexSize(off, len, b.length);
-        checkCapacity(count + len);
-        System.arraycopy(b, off, buf, count, len);
-        count += len;
+    public synchronized void write(byte[] bytes, int offset, int length) {
+        Objects.checkFromIndexSize(offset, length, bytes.length);
+        checkCapacity(count + length);
+        System.arraycopy(bytes, offset, messageBuffer, count, length);
+        count += length;
     }
 
     private void checkCapacity(int minCapacity) {
         // overflow-conscious code
-        if (minCapacity - buf.length > 0)
+        if (minCapacity - messageBuffer.length > 0)
             bufferExpand(minCapacity);
     }
 
@@ -59,17 +57,17 @@ public class XYZZByteWriter {
 
     private void bufferExpand(int minCapacity) {
         // overflow-conscious code
-        int oldCapacity = buf.length;
+        int oldCapacity = messageBuffer.length;
         int newCapacity = oldCapacity << 1;
         if (newCapacity - minCapacity < 0)
             newCapacity = minCapacity;
         if (newCapacity - MAX_ARRAY_SIZE > 0)
             newCapacity = Integer.MAX_VALUE;
-        buf = Arrays.copyOf(buf, newCapacity);
+        messageBuffer = Arrays.copyOf(messageBuffer, newCapacity);
     }
 
     public synchronized byte[] toByteArray() {
-        return Arrays.copyOf(buf, count);
+        return Arrays.copyOf(messageBuffer, count);
     }
 
 

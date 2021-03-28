@@ -1,7 +1,5 @@
 package com.company.cz4013.util;
 
-import com.company.cz4013.exception.DeserialisationError;
-
 import java.io.IOException;
 import java.util.Objects;
 
@@ -12,44 +10,44 @@ import java.util.Objects;
  */
 public class XYZZByteReader {
 
-    protected byte buf[];
-    protected int pos;
+    protected byte[] messageBuffer;
+    protected int currentPosition;
     protected int mark = 0;
     protected int count;
 
 
-    public XYZZByteReader (byte buf[]) {
-        this.buf = buf;
-        this.pos = 0;
-        this.count = buf.length;
+    public XYZZByteReader(byte[] messageBuffer) {
+        this.messageBuffer = messageBuffer;
+        this.currentPosition = 0;
+        this.count = messageBuffer.length;
     }
 
-    public synchronized int read(byte b[], int off, int len) {
-        Objects.checkFromIndexSize(off, len, b.length);
+    public synchronized int read(byte[] bytes, int offset, int len) {
+        Objects.checkFromIndexSize(offset, len, bytes.length);
 
-        if (pos >= count) {
+        if (currentPosition >= count) {
             return -1;
         }
 
-        int avail = count - pos;
-        if (len > avail) {
-            len = avail;
+        int available = count - currentPosition;
+        if (len > available) {
+            len = available;
         }
         if (len <= 0) {
             return 0;
         }
-        System.arraycopy(buf, pos, b, off, len);
-        pos += len;
+        System.arraycopy(messageBuffer, currentPosition, bytes, offset, len);
+        currentPosition += len;
         return len;
     }
 
     public synchronized int read() {
-        return (pos < count) ? (buf[pos++] & 0xff) : -1;
+        return (currentPosition < count) ? (messageBuffer[currentPosition++] & 0xff) : -1;
     }
 
 
-    public int readNBytes(byte[] b, int off, int len) {
-        int n = read(b, off, len);
+    public int readNBytes(byte[] bytes, int offset, int len) {
+        int n = read(bytes, offset, len);
         return n == -1 ? 0 : n;
     }
 
@@ -59,7 +57,7 @@ public class XYZZByteReader {
         }
         byte[] bytes = new byte[len];
         int result = read(bytes, 0, len);
-        if (result == -1){
+        if (result == -1) {
             throw new IOException("Required array size too large");
         } else {
             return bytes;
