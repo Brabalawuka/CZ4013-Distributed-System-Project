@@ -6,8 +6,6 @@ import com.company.cz4013.base.dto.XYZZMessageType;
 import com.company.cz4013.exception.DeserialisationError;
 import com.company.cz4013.exception.SerialisationError;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
 import java.nio.ByteBuffer;
@@ -35,17 +33,17 @@ public class SerialisationTool {
     }};
 
 
-    public static BaseXYZZMessage deserialiseToMsg(ByteArrayInputStream stream) throws DeserialisationError {
+    public static BaseXYZZMessage deserialiseToMsg(XYZZByteReader reader) throws DeserialisationError {
 
         BaseXYZZMessage<?> msg = new BaseXYZZMessage<>();
 
 
         //Interpret Msg Type
-        msg.setType(XYZZMessageType.fromInteger(stream.read()));
+        msg.setType(XYZZMessageType.fromInteger(reader.read()));
 
         //Interpret UUID
         byte[] uuid = new byte[36];
-        int uuidResult = stream.read(uuid, 0, 36);
+        int uuidResult = reader.read(uuid, 0, 36);
         if (uuidResult == -1){
             throw new DeserialisationError("UUID Error");
         } else {
@@ -53,8 +51,8 @@ public class SerialisationTool {
         }
 
         //Interpret MethodName
-        byte[] methodName = new byte[stream.read()];
-        int methodNameResult = stream.readNBytes(methodName, 0, methodName.length);
+        byte[] methodName = new byte[reader.read()];
+        int methodNameResult = reader.readNBytes(methodName, 0, methodName.length);
         if (methodNameResult == -1){
             throw new DeserialisationError("ClassName Error");
         }
@@ -63,36 +61,36 @@ public class SerialisationTool {
         return msg;
     }
 
-    public static ByteArrayOutputStream serialiseToMsg(BaseXYZZMessage message) throws Exception {
+    public static XYZZByteWriter serialiseToMsg(BaseXYZZMessage message) throws Exception {
 
-        ByteArrayOutputStream stream = new ByteArrayOutputStream();
+        XYZZByteWriter writer = new XYZZByteWriter();
 
         //Write Msg Type
-        stream.write(XYZZMessageType.toInteger(message.getType()));
+        writer.write(XYZZMessageType.toInteger(message.getType()));
 
         //Write UUID TODO: USE BASE64 to compress UUID in to 24byte
-        stream.write(message.getUuId().toString().getBytes(), 0, 36);
+        writer.write(message.getUuId().toString().getBytes(), 0, 36);
 
         //WriteData
         if(message.getData() == null){
             throw new SerialisationError("No XYZZObject detected: " + message.getUuId() + message.getMethodName());
         }
 
-        serialiseObjectTostream(stream, message.getData());
-        return stream;
+        serialiseObjectToWriter(writer, message.getData());
+        return writer;
     }
 
 
-    public static <T extends BaseXYZZObject> T deserialiseToObject(ByteArrayInputStream stream, T decodeObject) throws Exception {
+    public static <T extends BaseXYZZObject> T deserialiseToObject(XYZZByteReader reader, T decodeObject) throws Exception {
 
         List<Field> fields = BaseXYZZObject.getOrderedField(decodeObject.getClass().getDeclaredFields());
 
         //Interpret Every
         for (Field field : fields) {
             field.setAccessible(true);
-            int type = stream.read();
+            int type = reader.read();
             try {
-                Object runtimeObject = decodeNext(type, stream);
+                Object runtimeObject = decodeNext(type, reader);
                 field.set(decodeObject, runtimeObject);
             } catch (Exception e) {
                 e.printStackTrace();
@@ -105,7 +103,7 @@ public class SerialisationTool {
 
 
 
-    public static <T extends BaseXYZZObject> void serialiseObjectTostream(ByteArrayOutputStream stream, T encodeObject) throws SerialisationError {
+    public static <T extends BaseXYZZObject> void serialiseObjectToWriter(XYZZByteWriter writer, T encodeObject) throws SerialisationError {
         // If use getFields, length 0. But by using getDeclaredFields, some originally private attribute might be sent as well
         List<Field> fields = BaseXYZZObject.getOrderedField(encodeObject.getClass().getDeclaredFields());
 
@@ -114,8 +112,8 @@ public class SerialisationTool {
             field.setAccessible(true);
             try {
                 int fieldTypeInt = typeToIntMap.getOrDefault(field.getType(), -1);
-                stream.write(fieldTypeInt);
-                encodeNext(stream, fieldTypeInt, field, encodeObject);
+                writer.write(fieldTypeInt);
+                encodeNext(writer, fieldTypeInt, field, encodeObject);
             } catch (Exception e) {
                 e.printStackTrace();
                 throw new SerialisationError("Message Encoding error: " + e.getMessage());
@@ -127,31 +125,31 @@ public class SerialisationTool {
 
 
 
-    private static Object decodeNext(int type, ByteArrayInputStream stream) throws Exception {
+    private static Object decodeNext(int type, XYZZByteReader reader) throws Exception {
 
         switch (type){
             case 0:
-                byte[] intByte =stream.readNBytes(4);
+                byte[] intByte =reader.readNBytes(4);
                 return ByteBuffer.wrap(intByte).order(ByteOrder.LITTLE_ENDIAN).getInt();
             case 1:
-                byte[] floatByte = stream.readNBytes(4);
+                byte[] floatByte = reader.readNBytes(4);
                 return ByteBuffer.wrap(floatByte).order(ByteOrder.LITTLE_ENDIAN).getFloat();
             case 2:
-                byte[] stringlength = stream.readNBytes(4);
+                byte[] stringlength = reader.readNBytes(4);
                 int length = ByteBuffer.wrap(stringlength).order(ByteOrder.LITTLE_ENDIAN).getInt();
-                return new String(stream.readNBytes(length), StandardCharsets.US_ASCII);
+                return new String(reader.readNBytes(length), StandardCharsets.US_ASCII);
             case 3:
-                return stream.read() == 1;
+                return reader.read() == 1;
             case 4:
-                int arrayType = stream.read();
+                int arrayType = reader.read();
                 if(arrayType > 3)
                     throw new DeserialisationError("Wrong MessageType: Array Component type error: " + arrayType);
 
-                byte[] arrayLengthBytes = stream.readNBytes(4);
+                byte[] arrayLengthBytes = reader.readNBytes(4);
                 int arrayLength = ByteBuffer.wrap(arrayLengthBytes).order(ByteOrder.LITTLE_ENDIAN).getInt();
                 List<Object> objectList = new ArrayList<>(arrayLength);
                 for (int i = 0; i < arrayLength; i++) {
-                    objectList.add(i, decodeNext(arrayType, stream));
+                    objectList.add(i, decodeNext(arrayType, reader));
                 }
                 return objectList;
 
@@ -159,7 +157,7 @@ public class SerialisationTool {
         throw new DeserialisationError("Wrong MessageType: " + type);
     }
 
-    private static ByteArrayOutputStream encodeNext(ByteArrayOutputStream stream, Integer fieldTypeInt,  Field field, BaseXYZZObject object) throws Exception {
+    private static XYZZByteWriter encodeNext(XYZZByteWriter writer, Integer fieldTypeInt,  Field field, BaseXYZZObject object) throws Exception {
 
 
         switch (fieldTypeInt){
@@ -167,28 +165,28 @@ public class SerialisationTool {
                 throw new SerialisationError("Wrong MessageType: " + fieldTypeInt);
             case 0:
                 int intVal = field.getInt(object);
-                stream.write(ByteBuffer.allocate(4).order(ByteOrder.LITTLE_ENDIAN).putInt(intVal).array());
-//                stream.write(intVal);
-                return stream;
+                writer.write(ByteBuffer.allocate(4).order(ByteOrder.LITTLE_ENDIAN).putInt(intVal).array());
+
+                return writer;
             case 1:
                 float floatVal = field.getFloat(object);
-                stream.write(ByteBuffer.allocate(4).order(ByteOrder.LITTLE_ENDIAN).putFloat(floatVal).array());
-                return stream;
+                writer.write(ByteBuffer.allocate(4).order(ByteOrder.LITTLE_ENDIAN).putFloat(floatVal).array());
+                return writer;
             case 2:
                 String strVal = (String) field.get(object);
                 byte[] strBytes = strVal.getBytes();
-                stream.write(ByteBuffer.allocate(4).order(ByteOrder.LITTLE_ENDIAN).putInt(strBytes.length).array());
-                stream.write(strBytes);
-                return stream;
+                writer.write(ByteBuffer.allocate(4).order(ByteOrder.LITTLE_ENDIAN).putInt(strBytes.length).array());
+                writer.write(strBytes);
+                return writer;
             case 3:
                 Boolean boolVal = (Boolean) field.get(object);
 //                boolean boolVal = field.getBoolean(object);
                 if (boolVal) {
-                    stream.write(1);
+                    writer.write(1);
                 } else {
-                    stream.write(0);
+                    writer.write(0);
                 }
-                return stream;
+                return writer;
             case 4:
                 //Get list type
                 ParameterizedType stringListType = (ParameterizedType) field.getGenericType();
@@ -198,35 +196,35 @@ public class SerialisationTool {
                 //get list type -> int
                 int listType = typeToIntMap.getOrDefault(c, -1);
                 //write inner type
-                stream.write(listType);
+                writer.write(listType);
                 //write list length
-                stream.write(ByteBuffer.allocate(4).order(ByteOrder.LITTLE_ENDIAN).putInt(length).array());
+                writer.write(ByteBuffer.allocate(4).order(ByteOrder.LITTLE_ENDIAN).putInt(length).array());
                 for (Object o : ((Collection) field.get(object))) {
                     switch (listType){
                         //Wrong List Type
                         case -1:
                             throw new SerialisationError("Wrong MessageType: Array Component type error: " + listType);
                         case 0:
-                            stream.write(ByteBuffer.allocate(4).order(ByteOrder.LITTLE_ENDIAN).putInt((Integer) o).array());
+                            writer.write(ByteBuffer.allocate(4).order(ByteOrder.LITTLE_ENDIAN).putInt((Integer) o).array());
                             break;
                         case 1:
-                            stream.write(ByteBuffer.allocate(4).order(ByteOrder.LITTLE_ENDIAN).putFloat((Float) o).array());
+                            writer.write(ByteBuffer.allocate(4).order(ByteOrder.LITTLE_ENDIAN).putFloat((Float) o).array());
                             break;
                         case 2:
                             byte[] objectBytes =((String)o).getBytes();
-                            stream.write(ByteBuffer.allocate(4).order(ByteOrder.LITTLE_ENDIAN).putInt(objectBytes.length).array());
-                            stream.write(objectBytes);
+                            writer.write(ByteBuffer.allocate(4).order(ByteOrder.LITTLE_ENDIAN).putInt(objectBytes.length).array());
+                            writer.write(objectBytes);
                             break;
                         case 3:
                             if ((Boolean)o) {
-                                stream.write(1);
+                                writer.write(1);
                             } else {
-                                stream.write(0);
+                                writer.write(0);
                             }
                             break;
                     }
                 }
-                return stream;
+                return writer;
 
         }
         throw new SerialisationError("Wrong MessageType: " + field.getName() + field.getClass());

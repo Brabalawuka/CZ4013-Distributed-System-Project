@@ -10,11 +10,12 @@ class FacilityBookingChangingController(BaseController):
         super().__init__()
         self._options = [
             'Advance Booking',
-            'Postpone Booking'
+            'Postpone Booking',
+            'Extend Booking'
         ]
         self.error_msg = dict({
             b"\x00": 'Non-existing Confirmation ID!',
-            b'\x01': 'Facility Not Available For the Shifted Time!'
+            b'\x01': 'Facility Not Available For the Changed Time!'
         })
         self.ctrl_list_1 = ["Back To Homepage", "Edit", "Make Another Query"]
         self.ctrl_list_2 = ['Back To Homepage', 'Make Another Query/Change']
@@ -39,9 +40,18 @@ class FacilityBookingChangingController(BaseController):
             ctrl_opt = get_menu_option(max_choice=len(self.ctrl_list_1))
             if ctrl_opt == 1:
                 self.show_options()
-                postpone = bool(get_menu_option(max_choice=len(self._options)))
-                shift_time = get_time_period(msg_suffix="Shift", precision='minute')
-                return self.change_handler(booking_id, postpone, shift_time)
+                change_opiton = get_menu_option(max_choice=len(self._options))
+                if change_opiton == 0:
+                    postpone = False
+                    shift_time = get_time_period(msg_suffix="Advance your booking", precision='minute')
+                    return self.change_handler(booking_id, postpone, shift_time)
+                if change_opiton == 1:
+                    postpone = True
+                    shift_time = get_time_period(msg_suffix="Delay Your Booking", precision='minute')
+                    return self.change_handler(booking_id, postpone, shift_time)
+                if change_opiton == 2:
+                    extend_time = get_time_period(msg_suffix="Extend Your Booking", precision='minute')
+                    return self.extend_handler(booking_id, extend_time)
             else:
                 return ctrl_opt
         except Exception as e:
@@ -52,6 +62,16 @@ class FacilityBookingChangingController(BaseController):
         try:
             print_message("Requesting For Change...")
             self.change_booking(booking_id, postpone, shift_time)
+            print_message(msg=f'\nBooking Has Been Successfully Updated!')
+            return self.end()
+        except Exception as e:
+            print_error(f'{str(e)}')
+            return self.end()
+
+    def extend_handler(self, booking_id, shift_time):
+        try:
+            print_message("Requesting For Extension...")
+            self.extend_booking(booking_id, shift_time)
             print_message(msg=f'\nBooking Has Been Successfully Updated!')
             return self.end()
         except Exception as e:
@@ -76,5 +96,11 @@ class FacilityBookingChangingController(BaseController):
 
     def change_booking(self, booking_id: str, postpone: bool, shift_time) -> None:
         reply_msg = request(ServiceType.FACILITY_BOOKING_AMENDMENT, booking_id, postpone, shift_time)
+        if reply_msg.msg_type == MessageType.EXCEPTION:
+            raise Exception(reply_msg.error_msg)
+
+
+    def extend_booking(self, booking_id: str, shift_time) -> None:
+        reply_msg = request(ServiceType.FACILITY_BOOKING_EXTEND, booking_id, shift_time)
         if reply_msg.msg_type == MessageType.EXCEPTION:
             raise Exception(reply_msg.error_msg)

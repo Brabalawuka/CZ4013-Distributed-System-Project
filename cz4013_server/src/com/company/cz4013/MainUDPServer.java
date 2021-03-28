@@ -5,17 +5,17 @@ import com.company.cz4013.base.client.BaseUdpMsg;
 import com.company.cz4013.base.dto.BaseXYZZMessage;
 import com.company.cz4013.base.dto.XYZZMessageType;
 import com.company.cz4013.controller.MethodsController;
-import com.company.cz4013.util.AdlerCheckSum;
+import com.company.cz4013.exception.ClientDisconnectionException;
+import com.company.cz4013.util.*;
 import com.company.cz4013.dto.response.ErrorMessageResponse;
-import com.company.cz4013.util.LRUCache;
-import com.company.cz4013.util.SerialisationTool;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
+
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
+import java.net.SocketException;
+import java.net.SocketTimeoutException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.Arrays;
@@ -26,6 +26,7 @@ public class MainUDPServer extends BaseUdpClient {
     public static boolean userInterrupt = false;
 
 
+    private static final int TIMEOUT_IN_MILLI = 2000;
     private MethodsController controller;
     private final LRUCache<UUID, BaseUdpMsg> messageHistory = new LRUCache<>(50);
 
@@ -34,12 +35,17 @@ public class MainUDPServer extends BaseUdpClient {
     public MainUDPServer(DatagramSocket socket) {
 
         super(socket);
+//        try {
+//            socket.setSoTimeout(TIMEOUT_IN_MILLI);
+//        } catch (SocketException e) {
+//            e.printStackTrace();
+//        }
         controller = new MethodsController();
     }
 
 
     @Override
-    protected BaseUdpMsg receiveRequest() {
+    protected BaseUdpMsg receiveRequest() throws SocketTimeoutException {
         BaseUdpMsg msg = super.receiveRequest();
         //carryout checksum verify content
         byte[] checkSum = Arrays.copyOfRange(msg.data, 0, 4);
@@ -57,9 +63,9 @@ public class MainUDPServer extends BaseUdpClient {
             return msg;
         }
 
-        ByteArrayInputStream stream = new ByteArrayInputStream(data);
+        XYZZByteReader reader = new XYZZByteReader(data);
         try {
-            msg.message = SerialisationTool.deserialiseToMsg(stream);
+            msg.message = SerialisationTool.deserialiseToMsg(reader);
         } catch (Exception deserialisationError) {
             deserialisationError.printStackTrace();
             BaseXYZZMessage<ErrorMessageResponse> errorMessage = new BaseXYZZMessage<ErrorMessageResponse>();
@@ -79,8 +85,8 @@ public class MainUDPServer extends BaseUdpClient {
         }
 
         try {
-            Method method = MethodsController.class.getDeclaredMethod(MethodsController.methodHashMap.get(msg.message.getMethodName()),BaseUdpMsg.class, ByteArrayInputStream.class);
-            msg = (BaseUdpMsg) method.invoke(controller, msg, stream);
+            Method method = MethodsController.class.getDeclaredMethod(MethodsController.methodHashMap.get(msg.message.getMethodName()),BaseUdpMsg.class, XYZZByteReader.class);
+            msg = (BaseUdpMsg) method.invoke(controller, msg, reader);
             //Save returned msg for At Most Once Messages
             if (msg.message.shouldCache()){
                 messageHistory.set(msg.message.getUuId(), msg);
@@ -102,16 +108,30 @@ public class MainUDPServer extends BaseUdpClient {
 
     public void listen(){
         while (true){
-            receiveRequest();
+            try {
+                receiveRequest();
+            } catch (SocketTimeoutException ignored) { }
         }
+    }
+
+    public BaseUdpMsg listen(int rounds) throws ClientDisconnectionException {
+        for (int i = 0; i < rounds; i++) {
+            try {
+                return receiveRequest();
+            } catch (SocketTimeoutException ignored) {
+                i++;
+            }
+        }
+        throw new ClientDisconnectionException("Not Able to Receive Request listening port for "+ rounds * TIMEOUT_IN_MILLI / 1000 + "seconds");
+
     }
 
 
 
-    public void sendMessage(BaseUdpMsg message) {
+    public synchronized void sendMessage(BaseUdpMsg message) {
         try {
-            ByteArrayOutputStream stream = SerialisationTool.serialiseToMsg(message.message);
-            byte[] payload = stream.toByteArray();
+            XYZZByteWriter writer = SerialisationTool.serialiseToMsg(message.message);
+            byte[] payload = writer.toByteArray();
             long checkSum = createCheckSum(payload);
             byte[] data = new byte[4 + payload.length];
             byte[] checkSumBytes = new byte[8];
@@ -119,6 +139,7 @@ public class MainUDPServer extends BaseUdpClient {
             System.arraycopy(checkSumBytes, 0, data, 0, 4);
             System.arraycopy(payload,0, data,4, payload.length);
             message.data = data;
+            //System.out.println(bytesToHex(data));
             super.sendMessage(message);
         } catch (Exception e) {
             e.printStackTrace();
@@ -136,6 +157,17 @@ public class MainUDPServer extends BaseUdpClient {
 //        System.out.println("CheckSum created: " + AdlerCheckSum.checkSum(content));
         return AdlerCheckSum.checkSum(content);
 
+    }
+
+    private static final char[] HEX_ARRAY = "0123456789ABCDEF".toCharArray();
+    public static String bytesToHex(byte[] bytes) {
+        char[] hexChars = new char[bytes.length * 2];
+        for (int j = 0; j < bytes.length; j++) {
+            int v = bytes[j] & 0xFF;
+            hexChars[j * 2] = HEX_ARRAY[v >>> 4];
+            hexChars[j * 2 + 1] = HEX_ARRAY[v & 0x0F];
+        }
+        return new String(hexChars);
     }
 
 

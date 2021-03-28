@@ -7,8 +7,9 @@ import com.company.cz4013.dto.query.*;
 import com.company.cz4013.dto.response.ErrorMessageResponse;
 import com.company.cz4013.dto.response.FacilityAvailSubscriptionResponse;
 import com.company.cz4013.util.SerialisationTool;
+import com.company.cz4013.util.XYZZByteReader;
+import com.company.cz4013.util.XYZZByteWriter;
 
-import java.io.ByteArrayInputStream;
 import java.util.HashMap;
 
 public class MethodsController extends BasePublisher {
@@ -30,13 +31,15 @@ public class MethodsController extends BasePublisher {
         put("FACILITY_BOOKING_CHECKING", "checkBookingInfo");
         put("FACILITY_BOOKING", "createNewBooking");
         put("FACILITY_BOOKING_AMENDMENT", "editCurrentBooking");
+        put("FACILITY_BOOKING_EXTEND", "extendingCurrentBooking");
+        put("FACILITY_AVAIL_CHECKING_MULTIPLE", "checkFacilityAvailabilityMultiPle");
     }};
 
 
-    public BaseUdpMsg checkFacilityAvailability(BaseUdpMsg msg, ByteArrayInputStream stream){
+    public BaseUdpMsg checkFacilityAvailability(BaseUdpMsg msg, XYZZByteReader reader){
 
         try {
-            FacilityAvailabilityQuery query = SerialisationTool.deserialiseToObject(stream, new FacilityAvailabilityQuery());
+            FacilityAvailabilityQuery query = SerialisationTool.deserialiseToObject(reader, new FacilityAvailabilityQuery());
             msg.message = msg.message.copyToNewMessage(facilityService.getFacilityAvailibity(query), XYZZMessageType.REPLY, false);
 
         } catch (Exception e) {
@@ -48,8 +51,24 @@ public class MethodsController extends BasePublisher {
         return msg;
 
     }
+    public BaseUdpMsg checkFacilityAvailabilityMultiPle(BaseUdpMsg msg, XYZZByteReader reader){
 
-    public BaseUdpMsg checkFacilityNameList(BaseUdpMsg msg, ByteArrayInputStream stream){
+        try {
+            FacilityAvailabilityMultipleQuery query = SerialisationTool.deserialiseToObject(reader, new FacilityAvailabilityMultipleQuery());
+            msg.message = msg.message.copyToNewMessage(facilityService.getMultipleFacilityAvailibity(query), XYZZMessageType.REPLY, false);
+
+        } catch (Exception e) {
+            msg.message = msg.message.copyToNewMessage(new ErrorMessageResponse(
+                    e.getMessage()
+            ), XYZZMessageType.ERROR, false);
+            e.printStackTrace();
+        }
+        return msg;
+
+    }
+
+
+    public BaseUdpMsg checkFacilityNameList(BaseUdpMsg msg, XYZZByteReader reader){
 
         try {
             msg.message = msg.message.copyToNewMessage(facilityService.getFacilityNameList(), XYZZMessageType.REPLY, false);
@@ -61,13 +80,12 @@ public class MethodsController extends BasePublisher {
         }
 
         return msg;
-
     }
 
-    public BaseUdpMsg subscribeToFacilityAvailability(BaseUdpMsg msg, ByteArrayInputStream stream){
+    public BaseUdpMsg subscribeToFacilityAvailability(BaseUdpMsg msg, XYZZByteReader reader){
 
         try {
-            FacilitySubscriptionQuery query = SerialisationTool.deserialiseToObject(stream, new FacilitySubscriptionQuery());
+            FacilitySubscriptionQuery query = SerialisationTool.deserialiseToObject(reader, new FacilitySubscriptionQuery());
             FacilityAvailSubscriptionResponse response = subscriptionService.register(query, msg.returnAddress,msg.returnPort);
             msg.message = msg.message.copyToNewMessage(response, XYZZMessageType.REPLY, true);
         } catch (Exception e) {
@@ -80,10 +98,10 @@ public class MethodsController extends BasePublisher {
 
     }
 
-    public BaseUdpMsg checkBookingInfo(BaseUdpMsg msg, ByteArrayInputStream stream){
+    public BaseUdpMsg checkBookingInfo(BaseUdpMsg msg, XYZZByteReader reader){
 
         try {
-            BookingInfoQuery query = SerialisationTool.deserialiseToObject(stream, new BookingInfoQuery());
+            BookingInfoQuery query = SerialisationTool.deserialiseToObject(reader, new BookingInfoQuery());
             msg.message = msg.message.copyToNewMessage(bookingService.getBookingInfo(query), XYZZMessageType.REPLY, false);
         } catch (Exception e) {
             msg.message = msg.message.copyToNewMessage(new ErrorMessageResponse(
@@ -97,10 +115,10 @@ public class MethodsController extends BasePublisher {
     }
 
     // TODO these methods are highly similar, can further abstract them
-    public BaseUdpMsg createNewBooking(BaseUdpMsg msg, ByteArrayInputStream stream){
+    public BaseUdpMsg createNewBooking(BaseUdpMsg msg, XYZZByteReader reader){
 
         try {
-            BookingCreationQuery query = SerialisationTool.deserialiseToObject(stream, new BookingCreationQuery());
+            BookingCreationQuery query = SerialisationTool.deserialiseToObject(reader, new BookingCreationQuery());
             msg.message = msg.message.copyToNewMessage(bookingService.creatBooking(query), XYZZMessageType.REPLY, true);
         } catch (Exception e) {
             msg.message = msg.message.copyToNewMessage(new ErrorMessageResponse(
@@ -113,10 +131,10 @@ public class MethodsController extends BasePublisher {
 
     }
 
-    public BaseUdpMsg editCurrentBooking(BaseUdpMsg msg, ByteArrayInputStream stream){
+    public BaseUdpMsg editCurrentBooking(BaseUdpMsg msg, XYZZByteReader reader){
 
         try {
-            BookingEditingQuery query = SerialisationTool.deserialiseToObject(stream, new BookingEditingQuery());
+            BookingEditingQuery query = SerialisationTool.deserialiseToObject(reader, new BookingEditingQuery());
             msg.message = msg.message.copyToNewMessage(bookingService.editBooking(query), XYZZMessageType.REPLY, true);
         } catch (Exception e) {
             msg.message = msg.message.copyToNewMessage(new ErrorMessageResponse(
@@ -125,6 +143,21 @@ public class MethodsController extends BasePublisher {
             e.printStackTrace();
         }
 
+        return msg;
+
+    }
+
+    public BaseUdpMsg extendingCurrentBooking(BaseUdpMsg msg, XYZZByteReader reader){
+
+        try {
+            BookingExtendingQuery query = SerialisationTool.deserialiseToObject(reader, new BookingExtendingQuery());
+            msg.message = msg.message.copyToNewMessage(bookingService.extendBooking(query), XYZZMessageType.REPLY, true);
+        } catch (Exception e) {
+            msg.message = msg.message.copyToNewMessage(new ErrorMessageResponse(
+                    e.getMessage()
+            ), XYZZMessageType.ERROR, false);
+            e.printStackTrace();
+        }
         return msg;
 
     }
