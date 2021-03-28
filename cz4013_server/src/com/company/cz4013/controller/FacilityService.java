@@ -9,11 +9,20 @@ import com.company.cz4013.util.TimePtrOffsetConverter;
 
 import java.util.*;
 
+/**
+ * Service for facility related operations
+ */
 public class FacilityService {
 
     public FacilityService() {
     }
 
+    /**
+     * Get the availability of a facility on chosen days
+     * @param query A query containing the required field for lookup
+     * @return A response containing the required facility availability information
+     * @throws Exception Thrown when bad request encountered (e.g. Invalid Facility Name)
+     */
     public FacilityAvailabilityResponse getFacilityAvailibity(FacilityAvailabilityQuery query) throws Exception {
         if (!Data.facilityList.containsKey(query.getFacilityName())) {
             throw new Exception("Facility Not Found");
@@ -43,6 +52,13 @@ public class FacilityService {
         }
         return new FacilityAvailabilityResponse(availability);
     }
+
+    /**
+     * Get the mutual available slots of a list of facilities on chosen days
+     * @param query A query containing the required field for lookup
+     * @return A response containing the required facility availability information
+     * @throws Exception Thrown when bad request encountered (e.g. Invalid Facility Name)
+     */
     public FacilityAvailabilityResponse getMultipleFacilityAvailibity(FacilityAvailabilityMultipleQuery query) throws Exception {
         for (String name : query.getFacilityName()) {
             if (!Data.facilityList.containsKey(name)) {
@@ -78,6 +94,10 @@ public class FacilityService {
         return new FacilityAvailabilityResponse(availability);
     }
 
+    /**
+     * Get the name list of all facilities hosted on the server
+     * @return A response containing the name list of all facilities
+     */
     public FacilityNamelistResponse getFacilityNameList() {
         return new FacilityNamelistResponse(new ArrayList<>(Data.facilityList.keySet()));
     }

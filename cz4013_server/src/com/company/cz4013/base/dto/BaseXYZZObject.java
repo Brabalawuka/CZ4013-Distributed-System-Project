@@ -7,10 +7,10 @@ import java.util.Comparator;
 import java.util.List;
 
 
+/**
+ * Base XYZZ object which allows the serializer to get fields in sequence for marshalling and unmarshalling purpose
+ */
 public class BaseXYZZObject {
-
-
-
 
     public static List<Field> getOrderedField(Field[] fields){
 

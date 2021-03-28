@@ -2,6 +2,10 @@ package com.company.cz4013.base.dto;
 
 import java.util.UUID;
 
+/**
+ * Base XYZZ Message
+ * @param <T>
+ */
 public class BaseXYZZMessage<T extends BaseXYZZObject> {
 
     protected UUID uuId;

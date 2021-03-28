@@ -4,13 +4,28 @@ import com.company.cz4013.base.dto.BaseXYZZMessage;
 
 import java.net.InetAddress;
 
+/**
+ * Base UDP Message
+ */
 public class BaseUdpMsg {
 
+    /**
+     * Address of the requester
+     */
     public InetAddress returnAddress;
+    /**
+     * Port of the requester
+     */
     public int returnPort;
-    //before decode
+
+    /**
+     * Data to be sent back to the requester in bytes
+     */
     public byte[] data;
-    //after decode
+
+    /**
+     * Data to be sent back to the requester in object format
+     */
     public BaseXYZZMessage message;
 
     public BaseUdpMsg(InetAddress returnAddress, int returnPort, byte[] data) {

@@ -5,6 +5,10 @@ import com.company.cz4013.base.dto.XYZZFieldAnnotation;
 
 import java.io.Serializable;
 
+/**
+ * Query containing necessary fields for shifting a booking
+ * Attribute names explain for themselves
+ */
 public class BookingEditingQuery extends BaseXYZZObject implements Serializable {
 
     @XYZZFieldAnnotation(order = 1)

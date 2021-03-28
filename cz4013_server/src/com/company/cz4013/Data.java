@@ -7,6 +7,10 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.regex.Pattern;
 
+/**
+ * Data Pool to hold all data.
+ * Serves as the in-memory database
+ */
 public class Data extends TimerTask{
     private static final Calendar calender = Calendar.getInstance();
 
@@ -16,6 +20,9 @@ public class Data extends TimerTask{
         return NUMBER_OF_MINUTE_IN_A_WEEK;
     }
 
+    /**
+     * Name list of all the available facilities on server
+     */
     public static volatile Map<String, Boolean> facilityList = new HashMap<>(){{
         put("Tut1", true);
         put("Tut2", true);
@@ -26,6 +33,9 @@ public class Data extends TimerTask{
         put("LT3", true);
     }};
 
+    /**
+     * Days in string format
+     */
     private static final List<String> dayKeywords = new ArrayList<>() {{
         add("Mon");
         add("Tue");
@@ -39,8 +49,17 @@ public class Data extends TimerTask{
     /*
     The facility Availibity is coded using a bit set with length of total minutes in a week
      */
+    /**
+     * Augmented Days depending on the current time
+     */
     public static volatile List<String> dayKeywordsDisplaySequence = new ArrayList<>(dayKeywords);
+    /**
+     * Facility availability of today and the coming 7 days
+     */
     public static volatile Map<String, BitSet> facilityAvailability = new HashMap<>();
+    /**
+     * Maps day name to the 00:00 offsets of that day in the BitSet
+     */
     public static volatile Map<String, Integer> dayNameToIdxOffset = new HashMap<>();
     public static volatile Map<String, Booking> bookingList = new HashMap<>();
 
@@ -50,13 +69,10 @@ public class Data extends TimerTask{
             facilityAvailability.put(facilityName, new BitSet(NUMBER_OF_MINUTE_IN_A_WEEK));
         });
     }
-    
-    public static void editFacilityAvailabilityEntry(String facilityName) {
-        // TODO: used at every booking, book changing and day switch
-        // TODO: notify the users at the end of update
-        // SubscriptionService.notify(facilityName);
-    }
 
+    /**
+     * Update the facility availability every day 00:00 by shifting bits
+     */
     private static void updateFacilityAvailibity() {
         facilityAvailability.forEach(((key, value) -> {
             facilityAvailability.put(key, value.get(60 * 24, 60 * 24 + NUMBER_OF_MINUTE_IN_A_WEEK));
@@ -64,6 +80,9 @@ public class Data extends TimerTask{
         }));
     }
 
+    /**
+     * Update the day name to offset mapping every day 00:00
+     */
     private static void updatedayNameToIdxOffset() {
         Date date = calender.getTime();
         String currentDay = new SimpleDateFormat("EE", Locale.ENGLISH).format(date.getTime());
@@ -89,6 +108,9 @@ public class Data extends TimerTask{
         }
     }
 
+    /**
+     * Update the name of startDay and endDay for each booking entries every Monday
+     */
     private static void updateBookingDay() {
         // TODO to be tested
         Pattern pattern = Pattern.compile("^Coming", Pattern.CASE_INSENSITIVE);
@@ -111,6 +133,9 @@ public class Data extends TimerTask{
         }
     }
 
+    /**
+     * Cron job to update the data
+     */
     @Override
     public void run() {
         System.out.println("Updating Time Slots...");

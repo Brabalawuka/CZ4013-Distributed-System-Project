@@ -13,11 +13,20 @@ import com.company.cz4013.util.TimePtrOffsetConverter;
 
 import java.util.BitSet;
 
+/**
+ * Service for booking related operations
+ */
 public class BookingService {
 
     public BookingService() {
     }
 
+    /**
+     * Get the information of a booking
+     * @param query A query containing the required field for lookup
+     * @return A response containing the required booking information
+     * @throws Exception Thrown when bad request encountered (e.g. No Booking Found)
+     */
     public BookingInfoResponse getBookingInfo(BookingInfoQuery query) throws Exception {
         if (!Data.bookingList.containsKey(query.getBookingId())) {
             throw new Exception("No Booking Found With ID " + query.getBookingId());
@@ -25,6 +34,12 @@ public class BookingService {
         return new BookingInfoResponse(Data.bookingList.get(query.getBookingId()));
     }
 
+    /**
+     * Create a new booking entry
+     * @param query A query containing the required field to make a booking
+     * @return A response containing the id of the newly created booking
+     * @throws Exception Thrown when bad request encountered (e.g. No Corresponding Facility Found)
+     */
     public BookingCreationResponse creatBooking(BookingCreationQuery query) throws Exception {
         if (!Data.facilityList.containsKey(query.getFacilityName())) {
             throw new Exception("Facility Not Found");
@@ -54,6 +69,12 @@ public class BookingService {
         return new BookingCreationResponse(booking.getBookingID());
     }
 
+    /**
+     * Make shift amendments to an exciting booking
+     * @param query A query containing the required field for lookup and editing
+     * @return A response containing the updated information about the booking
+     * @throws Exception Thrown when bad request encountered (e.g. Facility Not Available)
+     */
     public BookingInfoResponse editBooking(BookingEditingQuery query) throws Exception {
         Booking booking = Data.bookingList.getOrDefault(query.getBookingId(),null);
         if(booking == null){
@@ -131,6 +152,15 @@ public class BookingService {
         }
     }
 
+    /**
+     * Erase the outdated booking history and update the booking by writing new bits
+     * @param originalStartPtr original starting position of the booking in BitSet
+     * @param originalEndPtr original ending position of the booking in BitSet
+     * @param newStartPrt new starting position of the booking in BitSet
+     * @param newEndPrt new ending position of the booking in BitSet
+     * @param record BitSet to be checked and changed
+     * @throws Exception Thrown when the BitMap already has some bit set between newStartPrt and newEndPrt
+     */
     private void eraseOldAndSetNewBooking(Integer originalStartPtr, Integer originalEndPtr, Integer newStartPrt, Integer newEndPrt, BitSet record) throws Exception {
         BitSet duration = record.get(newStartPrt, newEndPrt + 1);
         int occupied = duration.cardinality();
@@ -143,6 +173,12 @@ public class BookingService {
         }
     }
 
+    /**
+     * Extend a booking
+     * @param query A query containing the required field for lookup and editing
+     * @return A response containing the updated information about the booking
+     * @throws Exception Thrown when bad request encountered (e.g. Facility Not Available)
+     */
     public BookingInfoResponse extendBooking(BookingExtendingQuery query) throws Exception {
 
         Booking booking = Data.bookingList.getOrDefault(query.getBookingId(),null);

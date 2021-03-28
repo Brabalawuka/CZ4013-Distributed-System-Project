@@ -5,6 +5,10 @@ import com.company.cz4013.base.dto.XYZZFieldAnnotation;
 
 import java.util.List;
 
+/**
+ * Query containing necessary fields for checking the available slots for a facility
+ * Attribute names explain for themselves
+ */
 public class FacilityAvailabilityQuery extends BaseXYZZObject {
 
     @XYZZFieldAnnotation(order = 1)

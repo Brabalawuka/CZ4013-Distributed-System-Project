@@ -5,6 +5,10 @@ import com.company.cz4013.base.dto.XYZZFieldAnnotation;
 
 import java.util.List;
 
+/**
+ * Query containing necessary fields for checking the mutual available slots for a list of facilities
+ * Attribute names explain for themselves
+ */
 public class FacilityAvailabilityMultipleQuery extends BaseXYZZObject {
 
 

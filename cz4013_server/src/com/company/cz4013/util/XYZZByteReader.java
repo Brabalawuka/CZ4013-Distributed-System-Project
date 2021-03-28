@@ -5,6 +5,11 @@ import com.company.cz4013.exception.DeserialisationError;
 import java.io.IOException;
 import java.util.Objects;
 
+/**
+ * A Reader holding bytes with automatically incremented pointers (no manual pointer moving is needed)
+ * Easy to use when the bytes are to be read at one pass and switching between classes
+ * Reduces possible values
+ */
 public class XYZZByteReader {
 
     protected byte buf[];

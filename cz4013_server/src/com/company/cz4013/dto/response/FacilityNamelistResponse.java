@@ -5,6 +5,10 @@ import com.company.cz4013.base.dto.XYZZFieldAnnotation;
 
 import java.util.List;
 
+/**
+ * Response containing the list of all facility names
+ * Attribute names explain for themselves
+ */
 public class FacilityNamelistResponse extends BaseXYZZObject {
 
     @XYZZFieldAnnotation(order = 1)

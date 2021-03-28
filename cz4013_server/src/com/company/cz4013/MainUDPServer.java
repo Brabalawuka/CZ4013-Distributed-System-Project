@@ -21,13 +21,25 @@ import java.nio.ByteOrder;
 import java.util.Arrays;
 import java.util.UUID;
 
+/**
+ * UDP Server to be used by the program
+ */
 public class MainUDPServer extends BaseUdpClient {
 
     public static boolean userInterrupt = false;
 
 
+    /**
+     * Time to wait ACK before retransmitting messages to a client
+     */
     private static final int TIMEOUT_IN_MILLI = 2000;
+    /**
+     * Main Router for services
+     */
     private MethodsController controller;
+    /**
+     * LRU Cache for at-most-once
+     */
     private final LRUCache<UUID, BaseUdpMsg> messageHistory = new LRUCache<>(50);
 
 
@@ -44,6 +56,11 @@ public class MainUDPServer extends BaseUdpClient {
     }
 
 
+    /**
+     * Receive a request from the port, validate and reply to the client.
+     * @return
+     * @throws SocketTimeoutException
+     */
     @Override
     protected BaseUdpMsg receiveRequest() throws SocketTimeoutException {
         BaseUdpMsg msg = super.receiveRequest();
@@ -109,6 +126,9 @@ public class MainUDPServer extends BaseUdpClient {
     }
 
 
+    /**
+     * Listen for new UDP messages
+     */
     public void listen(){
         while (true){
             try {
@@ -130,7 +150,10 @@ public class MainUDPServer extends BaseUdpClient {
     }
 
 
-
+    /**
+     * Serialize a BaseUdpMsg and send out to the client
+     * @param message UDP message object to be sent out
+     */
     public synchronized void sendMessage(BaseUdpMsg message) {
         try {
             XYZZByteWriter writer = SerialisationTool.serialiseToMsg(message.message);
@@ -149,6 +172,12 @@ public class MainUDPServer extends BaseUdpClient {
         }
     }
 
+    /**
+     * Verify if a message is corrupted
+     * @param checkSum stated checksum
+     * @param content content to be hashed using Adler32
+     * @return True if the message is valid
+     */
     private boolean verifyCheckSum(long checkSum, byte[] content){
 //        System.out.println("CheckSum receivced: " + checkSum);
 //        System.out.println("CheckSum verified: : " + AdlerCheckSum.checkSum(content));
@@ -156,6 +185,11 @@ public class MainUDPServer extends BaseUdpClient {
         return checkSum == AdlerCheckSum.checkSum(content);
     }
 
+    /**
+     * Get a checksum for the input message
+     * @param content message to be hashed
+     * @return Hashed result in long
+     */
     private long createCheckSum(byte[] content){
 //        System.out.println("CheckSum created: " + AdlerCheckSum.checkSum(content));
         return AdlerCheckSum.checkSum(content);

@@ -5,6 +5,10 @@ import com.company.cz4013.base.dto.XYZZFieldAnnotation;
 
 import java.util.List;
 
+/**
+ * Query containing necessary fields to subscribe for the availability of a facility
+ * Attribute names explain for themselves
+ */
 public class FacilitySubscriptionQuery extends BaseXYZZObject {
 
     @XYZZFieldAnnotation(order = 1)

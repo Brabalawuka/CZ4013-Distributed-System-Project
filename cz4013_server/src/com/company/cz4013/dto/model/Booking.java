@@ -2,6 +2,10 @@ package com.company.cz4013.dto.model;
 
 import java.util.UUID;
 
+/**
+ * An OOP representation of a Booking entry
+ * Attribute names explain for themselves
+ */
 public class Booking {
     private String bookingID;
     private String facilityName;

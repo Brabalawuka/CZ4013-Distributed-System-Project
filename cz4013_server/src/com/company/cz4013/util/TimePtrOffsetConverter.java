@@ -1,5 +1,9 @@
 package com.company.cz4013.util;
 
+/**
+ * An Util Class to convert 24hr format time string to the pointer offset in BitSet
+ * Method names explain for themselves
+ */
 public class TimePtrOffsetConverter {
 
     public static String ptrOffsetToTime(int ptr) {

@@ -9,8 +9,14 @@ import java.net.SocketTimeoutException;
 import java.util.Arrays;
 import java.util.Random;
 
+/**
+ * Base UDP Client
+ */
 public abstract class BaseUdpClient {
 
+    /**
+     * Socket to be used to transmitting and listening data
+     */
     protected DatagramSocket socket;
 
 
@@ -19,6 +25,11 @@ public abstract class BaseUdpClient {
     }
 
 
+    /**
+     * receive a request via socket and parse it to a Base UDP message
+     * @return parsed UDP message
+     * @throws SocketTimeoutException no message was received and the timeout limit is hit
+     */
     protected BaseUdpMsg receiveRequest() throws SocketTimeoutException{
         byte[] dataBuffer = new byte[4096];
         DatagramPacket request = new DatagramPacket(dataBuffer, dataBuffer.length);
@@ -33,6 +44,10 @@ public abstract class BaseUdpClient {
         return new BaseUdpMsg(request.getAddress(), request.getPort(), payload);
     }
 
+    /**
+     * send out a UDP message
+     * @param message UDP message object to be sent out
+     */
     protected void sendMessage(BaseUdpMsg message){
 
         System.out.print("Sending Package: UUID = " + message.message.getUuId()

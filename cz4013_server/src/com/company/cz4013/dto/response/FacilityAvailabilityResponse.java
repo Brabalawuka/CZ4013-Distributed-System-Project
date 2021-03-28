@@ -5,6 +5,10 @@ import com.company.cz4013.base.dto.XYZZFieldAnnotation;
 
 import java.util.List;
 
+/**
+ * Response containing the (common) available slots of facility/facilities by days
+ * Attribute names explain for themselves
+ */
 public class FacilityAvailabilityResponse extends BaseXYZZObject {
 
     @XYZZFieldAnnotation(order = 1)

@@ -11,6 +11,10 @@ import com.company.cz4013.util.XYZZByteReader;
 
 import java.util.HashMap;
 
+/**
+ * Serves as a general entry router for all services, used via reflection by the UDP server
+ * A Wrapper of the other detailed controllers
+ */
 public class MethodsController extends BasePublisher {
 
     private BookingService bookingService;
@@ -23,6 +27,9 @@ public class MethodsController extends BasePublisher {
         subscriptionService = new SubscriptionService();
     }
 
+    /**
+     * Map of the human-readable service name to corresponding method name
+     */
     public static HashMap<String, String> methodHashMap = new HashMap<>(){{
         put("FACILITY_AVAIL_CHECKING", "checkFacilityAvailability");
         put("FACILITY_NAMELIST_CHECKING", "checkFacilityNameList");
@@ -35,6 +42,9 @@ public class MethodsController extends BasePublisher {
     }};
 
 
+    /**
+     * Parsed the request into the desired query format and invokes methods from corresponding controllers
+     */
     public BaseUdpMsg checkFacilityAvailability(BaseUdpMsg msg, XYZZByteReader reader){
 
         try {
@@ -50,6 +60,10 @@ public class MethodsController extends BasePublisher {
         return msg;
 
     }
+
+    /**
+     * Similar as above
+     */
     public BaseUdpMsg checkFacilityAvailabilityMultiPle(BaseUdpMsg msg, XYZZByteReader reader){
 
         try {
@@ -66,7 +80,9 @@ public class MethodsController extends BasePublisher {
 
     }
 
-
+    /**
+     * Similar as above
+     */
     public BaseUdpMsg checkFacilityNameList(BaseUdpMsg msg, XYZZByteReader reader){
 
         try {
@@ -81,6 +97,9 @@ public class MethodsController extends BasePublisher {
         return msg;
     }
 
+    /**
+     * Similar as above
+     */
     public BaseUdpMsg subscribeToFacilityAvailability(BaseUdpMsg msg, XYZZByteReader reader){
         if (msg.message.getType() == XYZZMessageType.NOTIFY){
             subscriptionService.notificationAck(msg.message.getUuId());
@@ -101,6 +120,9 @@ public class MethodsController extends BasePublisher {
 
     }
 
+    /**
+     * Similar as above
+     */
     public BaseUdpMsg checkBookingInfo(BaseUdpMsg msg, XYZZByteReader reader){
 
         try {
@@ -117,7 +139,9 @@ public class MethodsController extends BasePublisher {
 
     }
 
-    // TODO these methods are highly similar, can further abstract them
+    /**
+     * Similar as above
+     */
     public BaseUdpMsg createNewBooking(BaseUdpMsg msg, XYZZByteReader reader){
 
         try {
@@ -134,6 +158,9 @@ public class MethodsController extends BasePublisher {
 
     }
 
+    /**
+     * Similar as above
+     */
     public BaseUdpMsg editCurrentBooking(BaseUdpMsg msg, XYZZByteReader reader){
 
         try {
@@ -150,6 +177,9 @@ public class MethodsController extends BasePublisher {
 
     }
 
+    /**
+     * Similar as above
+     */
     public BaseUdpMsg extendingCurrentBooking(BaseUdpMsg msg, XYZZByteReader reader){
 
         try {

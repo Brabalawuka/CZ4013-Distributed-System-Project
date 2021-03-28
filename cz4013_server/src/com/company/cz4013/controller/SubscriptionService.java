@@ -14,11 +14,20 @@ import java.net.InetAddress;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
+/**
+ * Service for subscription related operations
+ */
 public class SubscriptionService {
 
+    /**
+     * Pool of threads used for notification
+     */
     private static final Map<UUID, Thread> notificationMap = new ConcurrentHashMap<>();
 
 
+    /**
+     * Subscription record for each facility
+     */
     private static final Map<String, ArrayList<Subscription>> subscription = new HashMap<>();
     static {
         Data.facilityList.forEach((key, value) -> {
@@ -26,10 +35,25 @@ public class SubscriptionService {
         });
     }
 
+    /**
+     * Single subscription record entry
+     */
     private static class Subscription{
+        /**
+         * Subscription ID
+         */
         public String subscriptionID;
+        /**
+         * Client address
+         */
         public InetAddress address;
+        /**
+         * Client port
+         */
         public int port;
+        /**
+         * End time of the subscription
+         */
         public long subscriptionEndTime;
 
         public Subscription(String subscriptionID, InetAddress address, int port, long subscriptionEndTime) {
@@ -46,6 +70,14 @@ public class SubscriptionService {
         });
     }
 
+    /**
+     * Register a client for future availability notification
+     * @param query A query containing the required field for subscription
+     * @param clientAddress Address of the client
+     * @param clientPort Port of the client
+     * @return A response containing the subscription ID
+     * @throws Exception Thrown when bad request encountered (e.g. Invalid Facility Name)
+     */
     public FacilityAvailSubscriptionResponse register(FacilitySubscriptionQuery query, InetAddress clientAddress, int clientPort) throws Exception {
         if (!Data.facilityList.containsKey(query.getFacilityName())) {
             throw new Exception("Facility Not Found");
@@ -62,6 +94,10 @@ public class SubscriptionService {
         return new FacilityAvailSubscriptionResponse(subscriptionId);
     }
 
+    /**
+     * Stop sending messages to a client with the given ID
+     * @param ackUUID ID of the subscription
+     */
     public void notificationAck(UUID ackUUID) {
         System.out.println("Received Notification Acknowledgement: UUID: " + ackUUID.toString());
         Thread thread = notificationMap.getOrDefault(ackUUID, null);
@@ -76,6 +112,10 @@ public class SubscriptionService {
         notificationMap.remove(ackUUID);
     }
 
+    /**
+     * Notify clients the availability change of a facility
+     * @param facilityName
+     */
     public static void notify(String facilityName) {
 
         try {
@@ -106,7 +146,6 @@ public class SubscriptionService {
         }
     }
 
-
     private static class NotificationRunnable implements Runnable{
 
         BaseUdpMsg msg;
@@ -115,6 +154,9 @@ public class SubscriptionService {
             this.msg = msg;
         }
 
+        /**
+         * Notify a client with maximally five times and a 2000 ms interval
+         */
         @Override
         public void run() {
             for (int i = 0; i < 5; i++) {

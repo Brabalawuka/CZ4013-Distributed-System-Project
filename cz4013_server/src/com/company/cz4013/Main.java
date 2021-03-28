@@ -14,8 +14,10 @@ public class Main {
 
     public static MainUDPServer mainUDPServer;
 
+    /**
+     * Entrance of the program
+     */
     public static void main(String[] args) {
-
         try {
             Timer t = new Timer();
             Data data = new Data();

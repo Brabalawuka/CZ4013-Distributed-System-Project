@@ -13,9 +13,15 @@ import java.nio.ByteOrder;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 
+/**
+ * A self-defined tool to marshall and unmarshall XYZZMessage Protocol
+ */
 public class SerialisationTool {
 
 
+    /**
+     * Map of data type to integer representation
+     */
     private static HashMap<Class, Integer> typeToIntMap = new HashMap<Class, Integer>(){{
         put(Integer.class, 0);
         put(Float.class, 1);
@@ -24,6 +30,9 @@ public class SerialisationTool {
         put(List.class, 4);
     }};
 
+    /**
+     * Map of integer representation to data type
+     */
     private static HashMap<Integer, Class> intToTypeMap = new HashMap<Integer, Class>(){{
         put(0, Integer.class);
         put(1, Float.class);
@@ -33,6 +42,12 @@ public class SerialisationTool {
     }};
 
 
+    /**
+     * Deserialise bytes got from the XYZZByteReader object to a BaseXYZZMessage
+     * @param reader A XYZZByteReader which supplies the bytes to be deserialised
+     * @return A BaseXYZZMessage which contains the unmarshalled data
+     * @throws DeserialisationError
+     */
     public static BaseXYZZMessage deserialiseToMsg(XYZZByteReader reader) throws DeserialisationError {
 
         BaseXYZZMessage<?> msg = new BaseXYZZMessage<>();
@@ -61,6 +76,12 @@ public class SerialisationTool {
         return msg;
     }
 
+    /**
+     * Serialize a BaseXYZZMessage to bytes and store in a XYZZByteWriter
+     * @param message  A BaseXYZZMessage to be serialised
+     * @return A XYZZByteWriter which contains data in bytes
+     * @throws Exception
+     */
     public static XYZZByteWriter serialiseToMsg(BaseXYZZMessage message) throws Exception {
 
         XYZZByteWriter writer = new XYZZByteWriter();
@@ -82,6 +103,14 @@ public class SerialisationTool {
     }
 
 
+    /**
+     * Deserialize bytes got from the XYZZByteReader object to a BaseXYZZObject
+     * @param reader A XYZZByteReader which supplies the bytes to be deserialised
+     * @param decodeObject An empty BaseXYZZObject whose attributed is to be set during Deserialization
+     * @param <T> A solid type of BaseXYZZObject (e.g. xxQuery)
+     * @return The BaseXYZZObject with data filled
+     * @throws Exception Thrown when unexpected/unmatched types encountered
+     */
     public static <T extends BaseXYZZObject> T deserialiseToObject(XYZZByteReader reader, T decodeObject) throws Exception {
 
         List<Field> fields = BaseXYZZObject.getOrderedField(decodeObject.getClass().getDeclaredFields());
@@ -102,8 +131,13 @@ public class SerialisationTool {
         return decodeObject;
     }
 
-
-
+    /**
+     * Serialize a BaseXYZZObject into bytes and store into the given XYZZByteWriter
+     * @param writer A XYZZByteWriter instance which will be used to store bytes
+     * @param encodeObject A BaseXYZZObject object whose fields will be deserialized
+     * @param <T> A solid type of BaseXYZZObject (e.g. xxResponse)
+     * @throws SerialisationError Thrown when unexpected/unmatched types encountered
+     */
     public static <T extends BaseXYZZObject> void serialiseObjectToWriter(XYZZByteWriter writer, T encodeObject) throws SerialisationError {
         // If use getFields, length 0. But by using getDeclaredFields, some originally private attribute might be sent as well
         List<Field> fields = BaseXYZZObject.getOrderedField(encodeObject.getClass().getDeclaredFields());
@@ -122,10 +156,13 @@ public class SerialisationTool {
         }
     }
 
-
-
-
-
+    /**
+     * Deserialize an field of data from bytes
+     * @param type type of the data
+     * @param reader A XYZZByteReader which supplies the bytes to be decoded
+     * @return Deserialize data of type int, float, String, bool or List
+     * @throws Exception Thrown when unexpected types encountered
+     */
     private static Object decodeNext(int type, XYZZByteReader reader) throws Exception {
 
         switch (type){
@@ -158,6 +195,15 @@ public class SerialisationTool {
         throw new DeserialisationError("Wrong MessageType: " + type);
     }
 
+    /**
+     * Serialize an field of data to bytes
+     * @param writer A XYZZByteWriter which the serialized bytes are to be stored
+     * @param fieldTypeInt type of the data in integer representation
+     * @param field A field to get the actual unserialized data
+     * @param object A BaseXYZZObject whose attribute is to be got
+     * @return The XYZZByteWriter will filled bytes
+     * @throws Exception Thrown when unexpected types encountered
+     */
     private static XYZZByteWriter encodeNext(XYZZByteWriter writer, Integer fieldTypeInt,  Field field, BaseXYZZObject object) throws Exception {
 
 

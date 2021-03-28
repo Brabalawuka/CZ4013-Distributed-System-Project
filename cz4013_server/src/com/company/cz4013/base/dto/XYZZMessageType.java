@@ -2,6 +2,9 @@ package com.company.cz4013.base.dto;
 
 import com.company.cz4013.exception.DeserialisationError;
 
+/**
+ * Type of XYZZMessage, details explained in the report
+ */
 public enum XYZZMessageType {
 
     CALL,

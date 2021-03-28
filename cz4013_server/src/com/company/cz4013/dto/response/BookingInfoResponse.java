@@ -4,6 +4,10 @@ import com.company.cz4013.base.dto.BaseXYZZObject;
 import com.company.cz4013.base.dto.XYZZFieldAnnotation;
 import com.company.cz4013.dto.model.Booking;
 
+/**
+ * Response containing the booking information
+ * Attribute names explain for themselves
+ */
 public class BookingInfoResponse extends BaseXYZZObject {
 
     @XYZZFieldAnnotation(order = 1)

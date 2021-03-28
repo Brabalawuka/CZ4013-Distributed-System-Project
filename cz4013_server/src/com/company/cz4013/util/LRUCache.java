@@ -3,6 +3,11 @@ package com.company.cz4013.util;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+/**
+ * A General-Purpose LRU Cache
+ * @param <K> key type
+ * @param <V> value type
+ */
 public class LRUCache<K, V> {
 
     private final LinkedHashMap<K, V> map;

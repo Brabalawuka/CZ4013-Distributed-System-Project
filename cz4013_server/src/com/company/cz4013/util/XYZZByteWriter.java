@@ -4,6 +4,10 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.Objects;
 
+/**
+ * A Writer to store bytes with variable length in an incremental way
+ * Easy to use when the messages are serialized part by part
+ */
 public class XYZZByteWriter {
 
 

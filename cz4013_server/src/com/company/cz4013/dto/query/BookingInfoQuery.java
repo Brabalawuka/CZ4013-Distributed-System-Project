@@ -5,6 +5,10 @@ import com.company.cz4013.base.dto.XYZZFieldAnnotation;
 
 import java.util.List;
 
+/**
+ * Query containing necessary fields for checking a particular booking information
+ * Attribute names explain for themselves
+ */
 public class BookingInfoQuery extends BaseXYZZObject {
 
     @XYZZFieldAnnotation(order = 1)

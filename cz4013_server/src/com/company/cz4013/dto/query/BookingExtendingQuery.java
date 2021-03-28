@@ -3,6 +3,10 @@ package com.company.cz4013.dto.query;
 import com.company.cz4013.base.dto.BaseXYZZObject;
 import com.company.cz4013.base.dto.XYZZFieldAnnotation;
 
+/**
+ * Query containing necessary fields for extending a booking
+ * Attribute names explain for themselves
+ */
 public class BookingExtendingQuery extends BaseXYZZObject {
 
     @XYZZFieldAnnotation(order = 1)
