@@ -6,6 +6,9 @@ from helpers import *
 
 
 class FacilityAvailCheckingController(BaseController):
+    """
+    This is the controller used to check the availability of an facility on particular days
+    """
     day_list = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
 
     def __init__(self, facility_name_list):
@@ -40,6 +43,13 @@ class FacilityAvailCheckingController(BaseController):
         return get_menu_option(max_choice=len(self.ctrl_list))
 
     def handler(self, facility_name: str, chosen_days: List[str]):
+        """
+        This handles the input from the users by logging hint information and makes request to the server for
+        the availability check
+        :param facility_name:
+        :param chosen_days:
+        :return:
+        """
         if len(chosen_days) == 1:
             displayed_days = chosen_days[0]
         else:
@@ -55,6 +65,12 @@ class FacilityAvailCheckingController(BaseController):
 
     @staticmethod
     def retrieve_facility_avail_by_days(facility_name: str, chosen_days: List[str]) -> List[str]:
+        """
+        This makes request to the server for the facility availability
+        :param facility_name: name of the chosen facility
+        :param chosen_days: chosen days as list of strings
+        :return: the corresponding available slots of the facility by days in sequence
+        """
         reply_msg = request(ServiceType.FACILITY_AVAIL_CHECKING, facility_name, chosen_days)
         if reply_msg.msg_type == MessageType.REPLY:
             return reply_msg.data[0]

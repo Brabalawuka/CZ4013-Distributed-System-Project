@@ -18,6 +18,13 @@ class SpecialCharacters:
 
 
 def print_options(opts: List[str], show_number: bool = True, new_line_at_end: bool = False) -> None:
+    """
+    Print a list of options to console
+    :param opts: list of options
+    :param show_number: use number as prefix when printing options
+    :param new_line_at_end: print a new line at the end of options
+    :return:
+    """
     for i, opt in enumerate(opts, 1):
         print(f"{Colors.OKCYAN}{f'{i} -' if show_number else SpecialCharacters.DOT}{Colors.ENDC} {opt}")
     if new_line_at_end:
@@ -25,29 +32,62 @@ def print_options(opts: List[str], show_number: bool = True, new_line_at_end: bo
 
 
 def print_message(msg: str) -> None:
+    """
+    Print a normal message
+    :param msg: message to be printed
+    :return:
+    """
     print(f"{Colors.OKBLUE}{msg}{Colors.ENDC}")
 
 
 def print_warning(msg: str) -> None:
+    """
+    Print a warning message
+    :param msg: message to be printed
+    :return:
+    """
     print(f"{Colors.WARNING}{msg}{Colors.ENDC}")
 
 
 def print_error(msg: str) -> None:
+    """
+    Print a error message
+    :param msg: message to be printed
+    :return:
+    """
     print(f"{Colors.FAIL}{msg}{Colors.ENDC}")
 
 
 def prompt_message_decorator(msg: str) -> str:
+    """
+    Add a blue '>' before the message
+    :param msg: message to be printed
+    :return:
+    """
     return f"{Colors.OKBLUE}>{Colors.ENDC} {msg}: "
 
 
 def inline_important_message_decorator(msg: str) -> str:
-    # TODO: This only works when the original msg is white or it is at the end of the line
+    """
+    Highlight some keywords from white messages
+    :param msg: keywords to be highlighted
+    :return:
+    """
     return f"{Colors.OKGREEN}{msg}{Colors.ENDC}"
 
 
 def print_timetable(days: List[str], avail_by_days: List[str],
                     new_line_at_top: bool = True, new_line_at_end: bool = True,
                     facility_name: str = None) -> None:
+    """
+    Print a timetable
+    :param days: days in sequence
+    :param avail_by_days: facility availability by days
+    :param new_line_at_top: extra new line before printing the timetable
+    :param new_line_at_end: extra new line after printing the timetable
+    :param facility_name: name of the facilities/facility
+    :return:
+    """
     assert len(days) == len(avail_by_days)
     if new_line_at_top:
         print()
@@ -65,6 +105,18 @@ def print_timetable(days: List[str], avail_by_days: List[str],
 
 def print_booking(booking_id: str, facility_name: str, start_day: str, start_time: str, end_day: str, end_time: str,
                   new_line_at_top: bool = True, new_line_at_end: bool = True) -> None:
+    """
+    Print a booking information
+    :param booking_id: id of the booking
+    :param facility_name: name of the booked facility
+    :param start_day: starting day of the booking
+    :param start_time: starting time of the booking
+    :param end_day: ending day of the booking
+    :param end_time: ending time of the booking
+    :param new_line_at_top: extra new line before printing the timetable
+    :param new_line_at_end: extra new line after printing the timetable
+    :return:
+    """
     if new_line_at_top:
         print()
     print_message(f'Booking Information For {inline_important_message_decorator(booking_id)}')

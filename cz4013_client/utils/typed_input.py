@@ -6,6 +6,13 @@ from utils import prompt_message_decorator, print_warning
 
 
 def get_menu_option(max_choice, msg='Please Indicate Your Choice', min_choice=1) -> int:
+    """
+    Get a valid option from the menu
+    :param max_choice: max possible value to be chosen
+    :param msg: message to be prompted for inputting
+    :param min_choice: min possible value to be chosen
+    :return: a user chosen index
+    """
     while True:
         user_input = input(prompt_message_decorator(msg))
         try:
@@ -19,6 +26,15 @@ def get_menu_option(max_choice, msg='Please Indicate Your Choice', min_choice=1)
 
 def get_string_options(list_of_vals: List[str], msg='Please Indicate Your Choice', separator=',',
                        max_num_of_choice: int = None, min_num_of_choice: int = 0) -> List[str]:
+    """
+    Get a string option from the menu
+    :param list_of_vals: list of valid values
+    :param msg: message to be prompted for inputting
+    :param separator: separator to be used when getting multiple string values
+    :param max_num_of_choice: max number of input string values
+    :param min_num_of_choice: min number of input string values
+    :return: used input string values
+    """
     list_of_vals = set(list_of_vals)
     while True:
         try:
@@ -36,6 +52,11 @@ def get_string_options(list_of_vals: List[str], msg='Please Indicate Your Choice
 
 
 def get_time(msg='Please Indicate A Time In 24hrs Format (e.g. 07:30)') -> str:
+    """
+    Get a valid time in 24hr format
+    :param msg: message to be displayed
+    :return: user input time in string
+    """
     while True:
         user_input = input(prompt_message_decorator(msg)).strip()
         if re.match(r'([01]?[0-9]|2[0-3]):[0-5][0-9]', user_input):
@@ -45,6 +66,12 @@ def get_time(msg='Please Indicate A Time In 24hrs Format (e.g. 07:30)') -> str:
 
 
 def get_string_input(msg=None, allow_none=False) -> str:
+    """
+    Get an arbitrary non-empty string input
+    :param msg: message to be displayed
+    :param allow_none: allows empty string
+    :return: user input string
+    """
     while True:
         try:
             user_input = input(prompt_message_decorator(msg)).strip()
@@ -57,6 +84,13 @@ def get_string_input(msg=None, allow_none=False) -> str:
 
 
 def get_int_input(msg=None, min_val=0, max_val=float('inf')) -> int:
+    """
+    Get an integer within certain range
+    :param msg: message to be displayed
+    :param min_val: min possible value (included)
+    :param max_val: max possible value (included)
+    :return: user input integer
+    """
     while True:
         user_input = input(prompt_message_decorator(msg))
         try:
@@ -69,6 +103,12 @@ def get_int_input(msg=None, min_val=0, max_val=float('inf')) -> int:
 
 
 def get_confirmation_id(msg="Please Input Your Confirmation ID With Dashes (Case Insensitive)", to_lower_case=True) -> str:
+    """
+    Get an valid UUID4
+    :param msg: message to be displayed
+    :param to_lower_case: convert user input string to lower case
+    :return: user input UUID4 string
+    """
     while True:
         try:
             user_input = input(prompt_message_decorator(msg)).strip().lower()
@@ -82,6 +122,12 @@ def get_confirmation_id(msg="Please Input Your Confirmation ID With Dashes (Case
 
 
 def get_time_period(msg_suffix: str = None, precision='seconds') -> int:
+    """
+    Get a period of time
+    :param msg_suffix: purpose of the time (e.g. shift)
+    :param precision: unit to be returned (seconds or minutes)
+    :return: user input time period with the specified percision
+    """
     values = []
     seq = ("Days", "Hours", "Minutes", "Seconds")
     if precision == 'second':

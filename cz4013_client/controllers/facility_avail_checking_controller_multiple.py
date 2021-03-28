@@ -6,6 +6,9 @@ from helpers import *
 
 
 class FacilityAvailCheckingControllerMultiple(BaseController):
+    """
+    This is the controller used to check mutual available slots of multiple facilities on particular days
+    """
     day_list = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
 
     def __init__(self, facility_name_list):
@@ -42,6 +45,12 @@ class FacilityAvailCheckingControllerMultiple(BaseController):
         return get_menu_option(max_choice=len(self.ctrl_list))
 
     def handler(self, facility_name: List[str], chosen_days: List[str]):
+        """
+        This handles the input from the users by logging hint information and make requests to the server
+        :param facility_name: name of the chosen facility
+        :param chosen_days: chosen days as list of strings
+        :return:
+        """
         if len(chosen_days) == 1:
             displayed_days = chosen_days[0]
         else:
@@ -57,6 +66,12 @@ class FacilityAvailCheckingControllerMultiple(BaseController):
 
     @staticmethod
     def retrieve_facility_avail_by_days(facility_name: List[str], chosen_days: List[str]) -> List[str]:
+        """
+        This makes request to the server for the mutual facility availability
+        :param facility_name: name of the chosen facilities
+        :param chosen_days: chosen days as list of strings
+        :return: the corresponding mutual available slots of the facilities by days in sequence
+        """
         facility_name_striped = []
         for i in facility_name:
             facility_name_striped.append(i.strip())

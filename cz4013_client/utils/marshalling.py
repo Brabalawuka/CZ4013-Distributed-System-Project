@@ -22,7 +22,6 @@ class ServiceType(Enum):
     FACILITY_AVAIL_CHECKING_SUBSCRIPTION = 'FACILITY_AVAIL_CHECKING_SUBSCRIPTION'
 
 
-
 type_to_hex = dict({
     int: b'\x00',
     float: b'\x01',
@@ -33,12 +32,18 @@ type_to_hex = dict({
 
 
 class BaseMessage:
+    """
+    Super class for all kinds of messages expected from the server
+    """
     def __init__(self, request_id: str):
         self.request_id = request_id
         self.msg_type = None
 
 
 class CallMessage(BaseMessage):
+    """
+    UDP message of type CALL
+    """
     def __init__(self, service: ServiceType, data: Tuple):
         super().__init__(str(uuid()))
         self.msg_type = MessageType.CALL
@@ -46,6 +51,10 @@ class CallMessage(BaseMessage):
         self.data = data
 
     def marshall(self) -> bytearray:
+        """
+        Marshall the data part of the message
+        :return: marshalled data in bytes
+        """
         msg_in_bytes = bytearray(self.msg_type.value)
         msg_in_bytes += bytes(self.request_id.encode('ascii'))
         msg_in_bytes += struct.pack('B', len(self.service.value))
@@ -56,10 +65,14 @@ class CallMessage(BaseMessage):
 
     @classmethod
     def _serialize_data(cls, a) -> bytes:
+        """
+        Marshall a field of data to bytes
+        :param a: data to be serialized
+        :return: serialized data in bytes
+        """
         type_a = type(a)
         serialized_form = type_to_hex[type_a]
 
-        # FIXME little-endian problem - need to be consistent with server
         if type_a is int:
             serialized_form += struct.pack('<i', a)
         elif type_a is float:
@@ -69,7 +82,6 @@ class CallMessage(BaseMessage):
         elif type_a is str:
             serialized_form += struct.pack('<i', len(a)) + bytes(a.encode('ascii'))
         elif type_a is list:
-            # FIXME not empty array allowed
             inner_type = type(a[0])
             serialized_inner_data = bytearray()
             for inner_a in a:
@@ -80,6 +92,9 @@ class CallMessage(BaseMessage):
 
 
 class ReplyMessage(BaseMessage):
+    """
+    UDP message of type REPLY
+    """
     def __init__(self, request_id: str, data: list):
         super().__init__(request_id)
         self.msg_type = MessageType.REPLY
@@ -87,6 +102,9 @@ class ReplyMessage(BaseMessage):
 
 
 class ExceptionMessage(BaseMessage):
+    """
+    UDP message of type EXCEPTION
+    """
     def __init__(self, request_id: str, error_msg: str):
         super().__init__(request_id)
         self.msg_type = MessageType.EXCEPTION
@@ -94,6 +112,9 @@ class ExceptionMessage(BaseMessage):
 
 
 class OneWayMessage(ReplyMessage):
+    """
+    UDP message of type ONEWAR (a.k.a NOTIFY)
+    """
     def __init__(self, service: ServiceType, request_id: str, data: list):
         super().__init__(request_id, data)
         self.msg_type = MessageType.ONEWAY
@@ -108,6 +129,11 @@ class OneWayMessage(ReplyMessage):
 
 
 def unmarshall(data: bytes) -> Union[ReplyMessage, OneWayMessage, ExceptionMessage]:
+    """
+    Unmarshall a message in bytes to one of the predefined UDP mesage types
+    :param data: raw data in bytes
+    :return: A UDP message of type REPLY, ONEWAY or EXCEPTION
+    """
     ptr = 0
     msg_type_id = data[0]
     ptr += 1
@@ -125,6 +151,12 @@ def unmarshall(data: bytes) -> Union[ReplyMessage, OneWayMessage, ExceptionMessa
 
 
 def parse_data(data: bytes, ptr: int) -> list:
+    """
+    Method used to unmarshall the Argument part from bytes by forwarding pointers
+    :param data: raw data in bytes
+    :param ptr: starting position of the Argument part
+    :return:
+    """
     parsed_data = []
     while ptr <= len(data) - 2:
         data_type = data[ptr]
@@ -148,6 +180,13 @@ def parse_data(data: bytes, ptr: int) -> list:
 
 
 def _parse_data_with_type(data, ptr, data_type):
+    """
+    Method used to parse one data field
+    :param data: raw data in bytes
+    :param ptr: current position of the pointer
+    :param data_type: type of the data to be unmarshalled
+    :return: unmarshalled data and pointer shift
+    """
     if data_type == 0:
         return struct.unpack('<i', data[ptr:ptr + 4])[0], 4
     elif data_type == 1:

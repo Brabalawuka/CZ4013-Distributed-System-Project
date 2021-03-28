@@ -6,6 +6,9 @@ from helpers import *
 
 
 class FacilityBookingController(BaseController):
+    """
+    This is the controller to make booking appointments
+    """
     def __init__(self, facility_name_list):
         super().__init__()
         self._options = facility_name_list
@@ -43,6 +46,15 @@ class FacilityBookingController(BaseController):
         return get_menu_option(max_choice=len(self.ctrl_list))
 
     def handler(self, facility_name: str, start_day, end_day, start_time, end_time):
+        """
+        This handles the input from the users by logging hint information and make requests to the server
+        :param facility_name: name of the chosen facility
+        :param start_day: start day of the booking
+        :param end_day: end day of the booking (in 24hr format)
+        :param start_time: start time of the booking
+        :param end_time: end time of the booking (in 24hr format)
+        :return:
+        """
         try:
             if not self._check_booking_interval(start_day, end_day, start_time, end_time):
                 raise Exception('Ending Time Cannot Be Prior To Starting Time!')
@@ -55,6 +67,14 @@ class FacilityBookingController(BaseController):
             print_error(f'Booking Failed: {str(e)}')
 
     def _check_booking_interval(self, start_day, end_day, start_time, end_time) -> bool:
+        """
+        This checks if the starting time and ending time are valid
+        :param start_day: start day of the booking
+        :param end_day: end day of the booking (in 24hr format)
+        :param start_time: start time of the booking
+        :param end_time: end time of the booking (in 24hr format)
+        :return:
+        """
         prefix_check = re.compile(r'Coming')
         is_start_coming = bool(prefix_check.match(start_day))
         is_end_coming = bool(prefix_check.match(end_day))
@@ -78,6 +98,15 @@ class FacilityBookingController(BaseController):
 
     @staticmethod
     def book_facility(facility_name: str, start_day, end_day, start_time, end_time) -> str:
+        """
+        This makes request to the server to book the facility
+        :param facility_name: name of the chosen facility
+        :param start_day: start day of the booking
+        :param end_day: end day of the booking (in 24hr format)
+        :param start_time: start time of the booking
+        :param end_time: end time of the booking (in 24hr format)
+        :return: an unique booking ID
+        """
         reply_msg = request(ServiceType.FACILITY_BOOKING, facility_name, start_day, start_time, end_day, end_time)
         if reply_msg.msg_type == MessageType.EXCEPTION:
             raise Exception(reply_msg.error_msg)

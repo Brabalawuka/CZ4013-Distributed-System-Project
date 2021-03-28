@@ -17,6 +17,9 @@ def get_free_port():
 
 
 class UDPClientSocket:
+    """
+    This is a UDP client that the program uses to send and listen messages
+    """
     UDPSocket = socket.socket(family=socket.AF_INET, type=socket.SOCK_DGRAM)
     UDPSocket.bind((CLIENT_IP, CLIENT_PORT if CLIENT_PORT is not None else get_free_port()))
     serverAddressPort = (SERVER_IP, SERVER_PORT)
@@ -25,6 +28,18 @@ class UDPClientSocket:
     def send_msg(cls, msg: bytes, request_id: str, wait_for_response: bool = True, time_out: int = 5,
                  max_attempt: int = float('inf'), buffer_size: int = 1024,
                  simulate_comm_omission_fail=True) -> Union[ReplyMessage, OneWayMessage, ExceptionMessage, None]:
+        """
+        This will forward a message to the server
+        :param msg: message to be included in the UDP message data part
+        :param request_id: ID of the request
+        :param wait_for_response: True if a reply from the server is needed
+        :param time_out: timeout interval for retransmitting a message
+        :param max_attempt: maximum attempts for trying to get a reply
+        :param buffer_size: maximum size of the message to be received
+        :param simulate_comm_omission_fail: True to create intended possible omission failure
+        by not sending out the request
+        :return: message from the server
+        """
         if wait_for_response:
             attempt = 0
             while attempt <= max_attempt:
@@ -71,6 +86,14 @@ class UDPClientSocket:
     @classmethod
     def listen_msg(cls, subscribe_time: int, subscription_id: int,
                    call_back_function: Callable, buffer_size: int = 1024) -> None:
+        """
+        This will listen message from the server for a certain period of time
+        :param subscribe_time: time to listen in seconds
+        :param subscription_id: expected id of the message from server
+        :param call_back_function: function to execute upon receiving a valid message
+        :param buffer_size: maximun size of the expected reply
+        :return: 
+        """
         end_time = time() + subscribe_time
         cls.UDPSocket.settimeout(subscribe_time)
 
