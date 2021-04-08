@@ -58,10 +58,17 @@ public abstract class BaseUdpClient {
                         + " ------ "
         );
         Random random = new Random();
-        //Simulate Transmission Packet Loss
-        if (random.nextInt(10) > 8){
-            System.out.println("Message Lost Simulated");
-            return;
+        if (message.returnPort == 8081) {
+            if (random.nextInt(10) > 0){
+                System.out.println("Targeted Message Lost Simulated");
+                return;
+            }
+        } else {
+            //Simulate Transmission Packet Loss
+            if (random.nextInt(10) > 8) {
+                System.out.println("Message Lost Simulated");
+                return;
+            }
         }
         //Simulate Transmission Byte Error
         if (random.nextInt(20) > 18){
