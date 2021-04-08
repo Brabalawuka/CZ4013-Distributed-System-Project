@@ -208,7 +208,7 @@ public class BookingService {
             if (duration.cardinality() > 0) {
                 throw new Exception("Facility Not Fully Available During The New Requested Period");
             } else {
-                record.set(originalStartPtr, newEndPrt);
+                record.set(originalStartPtr, newEndPrt + 1);
             }
 
             booking.setStartDay(Data.dayKeywordsDisplaySequence.get(originalStartPtr / 1440));
